@@ -20,6 +20,7 @@ sudo apt-get update -y
 
 # Install pip
 sudo apt-get install -y python3-pip nginx docker.io docker-compose nginx
+wait
 
 sudo tee /etc/nginx/sites-available/default <<EOF
 server{
