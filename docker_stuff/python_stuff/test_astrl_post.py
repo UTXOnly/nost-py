@@ -61,7 +61,7 @@ def methods(action: str, id: str, relays: List[str], settings: Dict[str, any]) -
         if not event: 
             logging.error("event data is missing")
             return 
-        content = await content_section()
+        content = content_section()
         db_work = {
             "action": "save",
         }
