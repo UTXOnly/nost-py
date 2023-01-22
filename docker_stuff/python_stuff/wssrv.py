@@ -5,16 +5,21 @@ import websockets
 import hmac
 import hashlib
 from time import time
+from ddtrace import tracer
 from sqlalchemy import create_engine, Column, String, Integer, JSON
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import logging
+
+logging.basicConfig(filename='/errors/error.log', level=logging.DEBUG)
+logging.error('An error occurred')
 
 # Database setup
 DATABASE_URL = os.environ.get("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
-
 
 class Event(Base):
     __tablename__ = 'event'
@@ -35,7 +40,16 @@ class Event(Base):
         self.tags = tags
         self.content = content
         self.sig = sig
-
+    def to_dict(self):
+            return {
+                "id": self.id,
+                "pubkey": self.pubkey,
+                "kind": self.kind,
+                "created_at": self.created_at,
+                "tags": self.tags,
+                "content": self.content,
+                "sig": self.sig
+            }
 
 Base.metadata.create_all(bind=engine)
 
@@ -44,19 +58,16 @@ connected_websockets = set()
 
 async def event_handler(websocket, path):
     connected_websockets.add(websocket)
-    subscriptions = []
-    try:
-        while True:
-            if not websocket.open:  # check if connection is closed
-                break
+    while True:
+        try:
             message = await websocket.recv()
+            logging.debug(f"Received message: {message}")
+            # Process message here
             message = json.loads(message)
             event = message.get("EVENT")
-            print(event)
-
-            # rest of the code
-
-
+            #response = "ACK"
+            #await websocket.send(response)
+            #logging.debug(f"Sent response: {response}")
             if event:
                 pubkey = event.get("pubkey")
                 kind = event.get("kind")
@@ -64,53 +75,64 @@ async def event_handler(websocket, path):
                 tags = event.get("tags")
                 content = event.get("content")
                 id = event.get("id")
+                subscription_id = event.get("subscription_id")
                 sig = event.get("sig")
-
-                event_data = json.dumps([0, pubkey, created_at, kind, tags, content], sort_keys=True)
+                event_data = json.dumps([pubkey, created_at, kind, tags, content], sort_keys=True)
                 computed_id = hashlib.sha256(event_data.encode()).hexdigest()
-
-                #if id != computed_id:
-                #    print("Event ID does not match computed event data. id: ", id, " computed_id: ", computed_id)
-                #    await websocket.send(json.dumps({"error": "Event ID does not match computed event data"}))
-                #    continue
-                ## Verify signature
-                #if not hmac.compare_digest(sig, hmac.new(bytes.fromhex(pubkey), event_data.encode(), hashlib.sha256).hexdigest()):
-                #    print("Invalid signature. sig: ", sig, " calculated_sig: ", hmac.new(bytes.fromhex(pubkey), event_data.encode(), hashlib.sha256).hexdigest())
-                #    await websocket.send(json.dumps({"error": "Invalid signature"}))
-                #    continue
-#
+                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
                 with SessionLocal() as db:
-                    new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
-                    db.add(new_event)
-                    db.commit()
-                await websocket.send(json.dumps({"message": "Event received and processed"}))
+                    try:
+                        event_dict = Event.to_dict(new_event)
+                        db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)", event_dict)
+                        db.commit()
+                        logging.debug(f"Event submitted to database: {event_dict}")
+                        await websocket.send(json.dumps({"message": "Event received and processed"}))
+                    except IntegrityError as e:
+                        db.rollback()
+                        # log the error or send an error message back to the client
+                        logging.error(e)
+                        await websocket.send(json.dumps({"error": "Event already exists"}))
+         
 
             elif message.get("REQ"):
-                subscription_id = message.get("subscription_id")
-                filters = message.get("filters")
-                with SessionLocal() as db:
-                    query = db.query(Event)
-                    if filters.get("ids"):
-                        query = query.filter(Event.id.in_(filters.get("ids")))
-                    if filters.get("authors"):
-                        query = query.filter(Event.pubkey.in_(filters.get("authors")))
-                    if filters.get("kinds"):
-                        query = query.filter(Event.kind.in_([filters.get("kinds")]))
-                    if filters.get("#e"):
-                        query = query.filter(Event.tags.any(lambda tag: tag[0] == 'e' and tag[1] in filters.get("#e")))
-                    if filters.get("#p"):
-                        query = query.filter(Event.tags.any(lambda tag: tag[0] == 'p' and tag[1] in filters.get("#p")))
-                    if filters.get("since"):
-                        query = query.filter(Event.created_at > filters.get("since"))
-                    if filters.get("until"):
-                        query = query.filter(Event.created_at < filters.get("until"))
-                    query_result = query.limit(filters.get("limit")).all()
-                    subscription_data = {"subscription_id": subscription_id, "filters": filters, "query_result": query_result}
-                    subscriptions.append(subscription_data)
-                    print(subscription_data)
-                    await websocket.send(json.dumps({"subscription_id": subscription_id, "query_result": query_result}))
-    finally:
-        connected_websockets.remove(websocket)
+                        subscription_id = message.get("subscription_id")
+                        filters = message.get("filters")
+                        logging.error(filters)
+                        with SessionLocal() as db:
+                            query = db.query(Event)
+                            if filters.get("ids"):
+                                query = query.filter(Event.id.in_(filters.get("ids")))
+                            if filters.get("authors"):
+                                query = query.filter(Event.pubkey.in_(filters.get("authors")))
+                            if filters.get("kind"):
+                                query = query.filter(Event.kind.in_(filters.get("kind")))
+                            if filters.get("#e"):
+                                query = query.filter(Event.tags.any(lambda tag: tag[0] == 'e' and tag[1] in filters.get("#e")))
+                            if filters.get("#p"):
+                                query = query.filter(Event.tags.any(lambda tag: tag[0] == 'p' and tag[1] in filters.get("#p")))
+                            if filters.get("since"):
+                                query = query.filter(Event.created_at > filters.get("since"))
+                            if filters.get("until"):
+                                query = query.filter(Event.created_at < filters.get("until"))
+                            query_result = query.limit(filters.get("limit")).all()
+                            query_result_dict = [Event.to_dict(event) for event in query_result]
+                            await websocket.send(json.dumps({"EVENT": query_result_dict, "subscription_id": subscription_id}))
+
+        except websockets.exceptions.ConnectionClosedError as e:
+            logging.error(f"Error occurred while receiving message: {e}")
+            break
+        except Exception as e:
+            logging.error(f"Error occurred while handling message: {e}")
+            break
+        finally:
+            try:
+                #connected_websockets.remove(websocket)
+                await websocket.close()
+            except KeyError:
+                pass
+
+
+
 
 start_server = websockets.serve(event_handler, '0.0.0.0', 8008)
 asyncio.get_event_loop().run_until_complete(start_server)

@@ -9,12 +9,10 @@ from time import time
 import logging
 import sys
 
-
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 base_url = 'ws://172.20.0.2:8008'
-
 
 def create_random_event():
     # Generate random pubkey, kind, and payload values
@@ -46,6 +44,8 @@ def create_random_event():
     event["sig"] = sig
     return event
 
+# Create the event to be posted
+#event = create_random_event()
 
 async def post_event(note: dict, subscription_id: str):
     """
@@ -72,7 +72,7 @@ async def post_event(note: dict, subscription_id: str):
                     return json.loads(response)
                 finally:
                     pinger.cancel()
-                    websocket.close()
+                    await websocket.close()
         except websockets.exceptions.ConnectionClosedError as e:
             retries += 1
             logging.debug(f"Error: {e}. Retrying...")
@@ -80,46 +80,15 @@ async def post_event(note: dict, subscription_id: str):
     logging.error("Error: Could not connect to websocket. Giving up.")
 
 
-
-
-
-async def test_query():
-    for i in range(3):
-        try:
-            async with websockets.connect(base_url) as websocket:
-                filters = {
-                    "authors": [str("npub1g5pm4gf8hh7skp2rsnw9h2pvkr32sdnuhkcx9yte7qxmrg6v4txqqudjqv")],
-                    "kind": [int(1)],
-                    "since": 1600000000,
-                    "until": 1600001000,
-                    "limit": 10
-                }
-                query_message = json.dumps({"REQ": "query", "subscription_id": "randomstring", "filters": filters})
-                await websocket.send(query_message)
-                response = await websocket.recv()
-                print(response)
-                websocket.close()
-                return response
-        except websockets.exceptions.ConnectionClosedError as e:
-            print(f"Error: {e}. Retrying...")
-            await asyncio.sleep(1)
-    print("Error: Could not connect to websocket. Giving up.")
-
+run_once = True
 
 async def main():
-    while True:
+    global run_once
+    while run_once:
         event = create_random_event()
-        #post_response = await post_event(event)
-        #print(post_response)
-        await post_event(note=event, subscription_id=str(random.getrandbits(256)))
-
-        query_response = await test_query()
-        print(query_response)
-        await asyncio.sleep(1)
+        post_response = await post_event(note=event, subscription_id=str(3))
+        print(post_response)
+        run_once = False
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-
-
