@@ -9,4 +9,4 @@ RUN pip install --upgrade pip
 
 COPY ./python_stuff .
 
-CMD ["python", "wssrv.py"]
+CMD ["ddtrace-run", "python", "wssv2.py"]
