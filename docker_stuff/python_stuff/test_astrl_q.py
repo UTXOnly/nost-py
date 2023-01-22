@@ -2,7 +2,7 @@ import os
 import asyncio
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from your_orm_code import Event  # import the Event class
+from wssv2 import Event  # import the Event class
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 engine = create_engine(DATABASE_URL)

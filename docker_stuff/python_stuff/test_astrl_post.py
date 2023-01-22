@@ -10,7 +10,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S', handlers=[logging.StreamHandler(sys.stdout)])
 
-async def content_section():
+def content_section():
     content = "This is a test from nost-py, a relay written in Python. If you are seeing this, I am sucessuflly storing events and serving client quieries"
     return content
 
@@ -79,8 +79,8 @@ def methods(action: str, id: str, relays: List[str], settings: Dict[str, any]) -
 async def main():
     id = str(uuid.uuid4())
     settings = {"event": "event data", "authors": ["npub1g5pm4gf8hh7skp2rsnw9h2pvkr32sdnuhkcx9yte7qxmrg6v4txqqudjqv"]}
-    relays = ["relay_url_1", "relay_url_2"]
-    content = await content_section()
+    relays = ["nostr.bostonbtc.com", "nostr.dojotunnel.online"]
+    content = content_section()
     settings["content"] = content
     ticket = methods("publish", id, relays, settings)
     if not ticket:
@@ -90,6 +90,11 @@ async def main():
         await websocket.send(json.dumps(ticket))
         response = await websocket.recv()
         logging.debug("Response: %s", response)
+        if response == '{"message": "Event received and processed"}':
+            logging.debug("Event processed successfully")
+            return
+        else:
+            logging.debug("Event processing failed")
 
 asyncio.run(main())
 
