@@ -80,6 +80,8 @@ async def main():
     id = str(uuid.uuid4())
     settings = {"event": "event data", "authors": ["npub1g5pm4gf8hh7skp2rsnw9h2pvkr32sdnuhkcx9yte7qxmrg6v4txqqudjqv"]}
     relays = ["relay_url_1", "relay_url_2"]
+    content = await content_section()
+    settings["content"] = content
     ticket = methods("publish", id, relays, settings)
     if not ticket:
         return
@@ -89,8 +91,7 @@ async def main():
         response = await websocket.recv()
         logging.debug("Response: %s", response)
 
-
-
 asyncio.run(main())
+
 
 
