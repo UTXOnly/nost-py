@@ -110,7 +110,7 @@ async def event_handler(websocket, path):
                     if authors:
                         query = query.filter(Event.pubkey.in_(authors))
                     if kinds:
-                        query = query.filter(Event.kind.in_(kind))
+                        query = query.filter(Event.kinds.in_(kinds))
                     #if e_tags:
                     #    query = query.filter(Event.tags.any(and_(EventTag.type == "e", EventTag.value.in_(e_tags))))
                     #if p_tags:
