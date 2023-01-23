@@ -132,7 +132,7 @@ async def event_handler(websocket, path):
                     except Exception as e:
                         logging.error("An error occurred while querying events: %s", e)
         finally:
-            await websocket.close()
+            #await websocket.close()
             logging.debug("Websocket connection closed.")
 
 
