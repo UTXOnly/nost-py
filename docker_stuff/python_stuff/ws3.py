@@ -32,10 +32,10 @@ class Event(Base):
     content = Column(String)
     sig = Column(String)
 
-    def __init__(self, id: str, pubkey: str, kind: int, created_at: int, tags: list, content: str, sig: str):
+    def __init__(self, id: str, pubkey: str, kinds: int, created_at: int, tags: list, content: str, sig: str):
         self.id = id
         self.pubkey = pubkey
-        self.kind = kind
+        self.kinds = kinds
         self.created_at = created_at
         self.tags = tags
         self.content = content
@@ -44,7 +44,7 @@ class Event(Base):
             return {
                 "id": self.id,
                 "pubkey": self.pubkey,
-                "kind": self.kind,
+                "kinds": self.kinds,
                 "created_at": self.created_at,
                 "tags": self.tags,
                 "content": self.content,
@@ -68,7 +68,7 @@ async def event_handler(websocket, path):
                 id = event.get("id")
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
-                kind = event.get("kind")
+                kinds = event.get("kinds")
                 tags = event.get("tags")
                 content = event.get("content")
                 sig = event.get("sig")
@@ -81,7 +81,7 @@ async def event_handler(websocket, path):
                     tag_relay = tag[2]
                     deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
 
-                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=deserialized_tags, content=content, sig=sig)
+                new_event = Event(id=id, pubkey=pubkey, kinds=kinds, created_at=created_at, tags=deserialized_tags, content=content, sig=sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
