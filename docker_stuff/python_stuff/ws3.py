@@ -95,7 +95,7 @@ async def event_handler(websocket, path):
                 filters = message[2]
                 ids = filters.get("ids", [])
                 authors = filters.get("authors", [])
-                kind = filters.get("kind", [])
+                kinds = filters.get("kinds", [])
                 e_tags = filters.get("#e", [])
                 p_tags = filters.get("#p", [])
                 since = filters.get("since", None)
