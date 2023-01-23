@@ -32,7 +32,7 @@ class Event(Base):
     content = Column(String)
     sig = Column(String)
 
-    def __init__(self, id: str, pubkey: str, kinds: int, created_at: int, tags: list, content: str, sig: str):
+    def __init__(self, id: str, pubkey: str, kind: int, created_at: int, tags: list, content: str, sig: str):
         self.id = id
         self.pubkey = pubkey
         self.kinds = kinds
@@ -44,7 +44,7 @@ class Event(Base):
             return {
                 "id": self.id,
                 "pubkey": self.pubkey,
-                "kinds": self.kinds,
+                "kind": self.kind,
                 "created_at": self.created_at,
                 "tags": self.tags,
                 "content": self.content,
@@ -63,12 +63,12 @@ async def event_handler(websocket, path):
             message = await websocket.recv()
             logging.debug(f"Received event: {message}")
             message = json.loads(message)
-            if "EVENT" in message:
-                event = message["EVENT"]
+            if message[0] == "EVENT":
+                event = message[1]
                 id = event.get("id")
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
-                kinds = event.get("kinds")
+                kind = event.get("kind")
                 tags = event.get("tags")
                 content = event.get("content")
                 sig = event.get("sig")
@@ -81,7 +81,7 @@ async def event_handler(websocket, path):
                     tag_relay = tag[2]
                     deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
 
-                new_event = Event(id=id, pubkey=pubkey, kinds=kinds, created_at=created_at, tags=deserialized_tags, content=content, sig=sig)
+                new_event = Event(id=id, pubkey=pubkey, kinds=kind, created_at=created_at, tags=deserialized_tags, content=content, sig=sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
@@ -90,14 +90,12 @@ async def event_handler(websocket, path):
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
                         await websocket.send(json.dumps({"error": str(e)}))
-            elif "REF" in message:
-                message = await websocket.recv()
-                message = json.loads(message)
-                subscription_id = message["REQ"]
-                filters = message["filters"]
+            elif message[0] == "REQ":
+                subscription_id = message[1]
+                filters = message[2]
                 ids = filters.get("ids", [])
                 authors = filters.get("authors", [])
-                kinds = filters.get("kinds", [])
+                kind = filters.get("kind", [])
                 e_tags = filters.get("#e", [])
                 p_tags = filters.get("#p", [])
                 since = filters.get("since", None)
@@ -111,8 +109,8 @@ async def event_handler(websocket, path):
                         query = query.filter(Event.id.in_(ids))
                     if authors:
                         query = query.filter(Event.pubkey.in_(authors))
-                    if kinds:
-                        query = query.filter(Event.kind.in_(kinds))
+                    if kind:
+                        query = query.filter(Event.kind.in_(kind))
                     #if e_tags:
                     #    query = query.filter(Event.tags.any(and_(EventTag.type == "e", EventTag.value.in_(e_tags))))
                     #if p_tags:
