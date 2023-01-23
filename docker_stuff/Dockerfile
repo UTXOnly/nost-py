@@ -9,4 +9,4 @@ RUN pip install --upgrade pip
 
 COPY ./python_stuff .
 
-CMD ["python", "wssv2.py"]
+CMD ["python", "ws3.py"]

@@ -1,94 +1,57 @@
-import asyncio
 import json
-import websockets
-import random
-import string
-import hmac
 import hashlib
-from time import time
+import ecdsa
+import time
 import logging
-import sys
+from websocket import create_connection
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
-
-base_url = 'ws://172.20.0.2:8008'
-
-def create_random_event():
-    # Generate random pubkey, kind, and payload values
-    pubkey = "npub1g5pm4gf8hh7skp2rsnw9h2pvkr32sdnuhkcx9yte7qxmrg6v4txqqudjqv"
-    kind = 1 #random.randint(0, 10)
-    created_at = int(time())
-    tags = []
-    content = "This is a test from nost-py, a relay written in Python. If you are seeing this, I am sucessuflly storing events and serving client quieries"
-
-    event = {
-        "pubkey": pubkey,
-        "kind": kind,
-        "created_at": created_at,
-        "tags": tags,
-        "content": content
-    }
-    event_data = json.dumps([pubkey, created_at, kind, tags, content], sort_keys=True)
-    print(event_data)
-
-    event_id = hashlib.sha256(event_data.encode()).hexdigest()
-    print(event_id)
-    
-    # decode the pubkey string before using it in the hmac
-    
-    sig = hmac.new(pubkey.encode(), event_data.encode(), hashlib.sha256).hexdigest()
-    print(sig)
-
-    event["id"] = event_id
-    event["sig"] = sig
+# Create a mock event
+def create_mock_event(pubkey, privkey):
+    event = {}
+    event["pubkey"] = pubkey
+    event["created_at"] = int(time.time())
+    event["kind"] = 0
+    event["tags"] = []
+    event["content"] = "This is a test from nost-py, a simple containerized Nostr relay written in Python. If you are seeing this, I am sucessuflly storing events and serving client quieries https://nostr.build/i/nostr.build_7211.jpg"
+    event_data = json.dumps([event["pubkey"], event["created_at"], event["kind"], event["tags"], event["content"]], separators=(',',':')).encode('utf-8')
+    event["id"] = hashlib.sha256(event_data).hexdigest()
+    event["sig"] = privkey.sign_deterministic(event_data, hashfunc=hashlib.sha256).hex()
     return event
 
-# Create the event to be posted
-#event = create_random_event()
 
-async def post_event(note: dict, subscription_id: str):
-    """
-    Sends a message to the websocket server with the provided nostr note and subscription ID
-    """
-    retries = 0
-    max_retries = 5
-    retry_interval = 5  # seconds
-    while retries < max_retries:
-        try:
-            async with websockets.connect(base_url) as websocket:
-                logging.debug(f"Connected to {base_url}")
-                async def ping():
-                    while True:
-                        await asyncio.sleep(30)
-                        await websocket.ping()
-                pinger = asyncio.create_task(ping())
-                try:
-                    event_data = json.dumps({"EVENT": note, "subscription_id": subscription_id})
-                    await websocket.send(event_data)
-                    response = await websocket.recv()
-                    logging.debug(response)
-                    pinger.cancel()
-                    return json.loads(response)
-                finally:
-                    pinger.cancel()
-                    await websocket.close()
-        except websockets.exceptions.ConnectionClosedError as e:
-            retries += 1
-            logging.debug(f"Error: {e}. Retrying...")
-            await asyncio.sleep(retry_interval)
-    logging.error("Error: Could not connect to websocket. Giving up.")
+hex_string = "6e7365633167683777737a786839707171707277787170306c33776c663475356a72743061796870713539366a766d36653930757963796b733778736865710a"
+
+# convert hex string to bytes
+bytes_data = bytes.fromhex(hex_string)
+
+# create SHA256 hash object
+hash_object = hashlib.sha256()
+
+# update the hash object with the bytes data
+hash_object.update(bytes_data)
+
+# get the 32-bit hex string representation of the hash
+print(hash_object.hexdigest())
+
+# convert hex string to bytes
+privkey_bytes = bytes.fromhex(hash_object.hexdigest())
+
+# Create the signing key
+sk = ecdsa.SigningKey.from_string(privkey_bytes, curve=ecdsa.SECP256k1)
+
+# Get the public key
+vk = sk.verifying_key
+pubkey = '04' + vk.to_string().hex()
+
+# Connect to WebSocket server
+ws = create_connection("ws://localhost:8008/")
+
+# Send the event to the server
+event = create_mock_event(pubkey, sk)
+ws.send(json.dumps({"EVENT": event}))
 
 
-run_once = True
+ws.close()
 
-async def main():
-    global run_once
-    while run_once:
-        event = create_random_event()
-        post_response = await post_event(note=event, subscription_id=str(3))
-        print(post_response)
-        run_once = False
-
-if __name__ == "__main__":
-    asyncio.run(main())
