@@ -35,7 +35,7 @@ class Event(Base):
     def __init__(self, id: str, pubkey: str, kind: int, created_at: int, tags: list, content: str, sig: str):
         self.id = id
         self.pubkey = pubkey
-        self.kinds = kinds
+        self.kind = kind
         self.created_at = created_at
         self.tags = tags
         self.content = content
@@ -109,7 +109,7 @@ async def event_handler(websocket, path):
                         query = query.filter(Event.id.in_(ids))
                     if authors:
                         query = query.filter(Event.pubkey.in_(authors))
-                    if kind:
+                    if kinds:
                         query = query.filter(Event.kind.in_(kind))
                     #if e_tags:
                     #    query = query.filter(Event.tags.any(and_(EventTag.type == "e", EventTag.value.in_(e_tags))))
