@@ -94,12 +94,22 @@ class Filter:
         if self.until:
             query = query.filter(Event.created_at <= self.until)
         if self.tags:
-            query = query.filter(Event.e_tags.any(lambda tag: tag["value"] in self.tags))
+            query = query.filter(Event.e_tags.in(lambda tag: tag["value"] in self.tags))
         if self.p_tags:
             query = query.filter(Event.p_tags.any(lambda tag: tag["value"] in self.p_tags))
         if self.limit:
             query = query.limit(self.limit)
         return query
+
+class TagFilter:
+    def apply(self, query: Query, tags: List[str]) -> Query:
+        if not tags:
+            return query
+        return query.filter(Event.e_tags.any(lambda tag: tag["value"] in tags))
+
+tag_filter = TagFilter()
+
+
 
 
 Base.metadata.create_all(bind=engine)
