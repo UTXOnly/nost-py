@@ -13,6 +13,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import logging
 
 
+
 logging.basicConfig(level=logging.DEBUG)
 
 # Database setup
@@ -22,34 +23,47 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 class Event(Base):
-    __tablename__ = 'event'
+    __tablename__ = "event"
 
-    id = Column(String, primary_key=True, index=True)
-    pubkey = Column(String, index=True)
-    kind = Column(Integer, index=True)
-    created_at = Column(Integer, index=True)
+    id = Column(String, primary_key=True)
+    pubkey = Column(String)
+    kind = Column(Integer)
+    created_at = Column(Integer)
     tags = Column(JSON)
+    e_tags = Column(JSON)
+    p_tags = Column(JSON)
     content = Column(String)
     sig = Column(String)
 
-    def __init__(self, id: str, pubkey: str, kind: int, created_at: int, tags: list, content: str, sig: str):
+    def __init__(self, id, pubkey, kind, created_at, tags, e_tags, p_tags, content, sig):
         self.id = id
         self.pubkey = pubkey
         self.kind = kind
         self.created_at = created_at
         self.tags = tags
+        self.e_tags = e_tags
+        self.p_tags = p_tags
         self.content = content
         self.sig = sig
-    def to_dict(self):
-            return {
-                "id": self.id,
-                "pubkey": self.pubkey,
-                "kind": self.kind,
-                "created_at": self.created_at,
-                "tags": self.tags,
-                "content": self.content,
-                "sig": self.sig
-            }
+
+    @staticmethod
+    def from_dict(event_dict):
+        return Event(**event_dict)
+
+    @staticmethod
+    def to_dict(event):
+        return {
+            "id": event.id,
+            "pubkey": event.pubkey,
+            "kind": event.kind,
+            "created_at": event.created_at,
+            "tags": event.tags,
+            "e_tags": event.e_tags,
+            "p_tags": event.p_tags,
+            "content": event.content,
+            "sig": event.sig
+        }
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -109,14 +123,14 @@ async def event_handler(websocket, path):
                         query = query.filter(Event.id.in_(ids))
                     if authors:
                         query = query.filter(Event.pubkey.in_(authors))
-                    #if kinds:
-                    #    query = query.filter(Event.kinds.in_(kinds))
-                    ##if e_tags:
-                    #    query = query.filter(Event.tags.any(and_(EventTag.type == "e", EventTag.value.in_(e_tags))))
-                    #if p_tags:
-                    #    query = query.filter(Event.tags.any(and_(EventTag.type == "p", EventTag.value.in_(p_tags))))
-                    #if since:
-                    #    query = query.filter(Event.created_at >= since)
+                    if kinds:
+                        query = query.filter(Event.kind.in_(kinds))
+                    if e_tags:
+                        query = query.filter(Event.deserialized_tags.any(lambda tag: tag["type"] == "e" and tag["value"] in e_tags))
+                    if p_tags:
+                        query = query.filter(Event.deserialized_tags.any(lambda tag: tag["type"] == "p" and tag["value"] in p_tags))
+                    if since:
+                        query = query.filter(Event.created_at >= since)
                     if until:
                         query = query.filter(Event.created_at <= until)
                     if limit:
