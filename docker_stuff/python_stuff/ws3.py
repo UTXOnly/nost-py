@@ -168,7 +168,7 @@ async def event_handler(websocket, path):
                             query = query.filter(Event.created_at >= filter_value)
                         elif filter_name == "until":
                             query = query.filter(Event.created_at <= filter_value)
-                        elif filter_name == "p_tags":
+                        elif filter_name == "e_tags":
                             query = query.filter(Event.e_tags.any(lambda tag: tag["value"] in filter_value))
                         elif filter_name == "p_tags":
                             query = query.filter(Event.p_tags.any(lambda tag: tag["value"] in filter_value))
@@ -182,6 +182,7 @@ async def event_handler(websocket, path):
                             logging.debug(f"Received event JSON: {results_json}")
                             response = json.dumps(results_json)
                             await websocket.send(response)
+                            logging.debug("Response JSON: {}".format(response))
                             logging.debug("Successfully sent events to the client.")
                         except Exception as e:
                             logging.error("An error occurred while querying events: %s", e)
