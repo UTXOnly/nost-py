@@ -10,6 +10,8 @@ from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql import array
+
 
 
 import logging
@@ -145,9 +147,10 @@ async def event_handler(websocket, path):
                     tag_value = tag[1]
                     tag_relay = tag[2]
                     deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
+                my_array = array(deserialized_tags)
 
                 new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=deserialized_tags, content=content, sig=sig)
-                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at, deserialized_tags, content, sig)
+                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at, my_array, content, sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
@@ -180,11 +183,11 @@ async def event_handler(websocket, path):
                                 query = query.filter(Event.created_at <= filter_value)
                                 logging.debug(f"Filtering events created until: {filter_value}")
                             elif filter_name == "#e":
-                                query = query.filter(Event.e_tags.in_(filter_value))
-                                logging.debug(f"Filtering events e tags: {filter_value}")
+                                query = query.filter(Event.e_tags.in_(my_array))
+                                logging.debug(f"Filtering events e tags: {my_array}")
                             elif filter_name == "#p":
-                                query = query.filter(Event.p_tags.in_(filter_value))
-                                logging.debug(f"Filtering events p tags: {filter_value}")
+                                query = query.filter(Event.p_tags.in_(my_array))
+                                logging.debug(f"Filtering events p tags: {my_array}")
 
                             
                             #elif filter_name == "limit":
