@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, Column, String, Integer, JSON, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import jsonb_contains
+
 
 import logging
 import json
