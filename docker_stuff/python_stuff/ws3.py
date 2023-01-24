@@ -177,14 +177,13 @@ async def event_handler(websocket, path):
                             elif filter_name == "until":
                                 query = query.filter(Event.created_at <= filter_value)
                                 logging.debug(f"Filtering events created until: {filter_value}")
-                            elif filter_name == "#e":
-                                query = query.filter(Event.e_tags.contains(filter_value))
+                            if filter_name == "#e":
+                                query = query.filter(Event.e_tags.in_(filter_value))
                                 logging.debug(f"Filtering events e tags: {filter_value}")
                             elif filter_name == "#p":
-                                query = query.filter(Event.p_tags.contains(filter_value))
+                                query = query.filter(Event.p_tags.in_(filter_value))
                                 logging.debug(f"Filtering events p tags: {filter_value}")
 
-                                logging.debug(f"Filtering events p tags: {filter_value}")
                             
                             #elif filter_name == "limit":
   ##
