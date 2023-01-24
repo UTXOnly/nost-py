@@ -160,7 +160,7 @@ async def event_handler(websocket, path):
                 with SessionLocal() as db:
                         query = db.query(Event)
                         for filter_name, filter_value in filters.items():
-                            filter_value = filter_value if isinstance(filter_value, (list, tuple, set)) else [filter_value]
+                            #filter_value = filter_value if isinstance(filter_value, (list, tuple, set)) else [filter_value]
 
                             if filter_name == "ids":
                                 query = query.filter(Event.id.in_(filter_value))
@@ -186,11 +186,11 @@ async def event_handler(websocket, path):
 
                                 logging.debug(f"Filtering events p tags: {filter_value}")
                             
-                            elif filter_name == "limit":
-  
-
-                                query = query.limit(filter_value)
-                                logging.debug(f"Filtering limits: {filter_value}")
+                            #elif filter_name == "limit":
+  #
+#
+                            #    query = query.limit(filter_value)
+                            #    logging.debug(f"Filtering limits: {filter_value}")
                 
                         try:
                             results = query.all()
