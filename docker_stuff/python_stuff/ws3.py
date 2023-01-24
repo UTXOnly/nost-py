@@ -187,7 +187,7 @@ async def event_handler(websocket, path):
                                 logging.debug(f"Filtering events p tags: {filter_value}")
                             
                             elif filter_name == "limit":
-                                filter_value = [str(val) for val in filter_value]
+  
 
                                 query = query.limit(filter_value)
                                 logging.debug(f"Filtering limits: {filter_value}")
