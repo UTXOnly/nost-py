@@ -71,9 +71,10 @@ class TagFilter:
         if not tags:
             return query
         if tag_type == "#e":
-            return query.filter(Event.e_tags.any(lambda tag: tag["value"] in tags))
+            return query.filter(Event.e_tags.any(lambda tag: tag in tags))
         elif tag_type == "#p":
-            return query.filter(Event.p_tags.any(lambda tag: tag["value"] in tags))
+            return query.filter(Event.p_tags.any(lambda tag: tag in tags))
+
 
 tag_filter = TagFilter()
 
@@ -112,6 +113,7 @@ class Filter:
             query = tag_filter.apply(query, self.tags.get("#e", []), "#e")
         if self.tags:
             query = tag_filter.apply(query, self.tags.get("#p", []), "#p")
+        logging.debug(query)
         return query
 
 
@@ -177,7 +179,7 @@ async def event_handler(websocket, path):
                             elif filter_name == "until":
                                 query = query.filter(Event.created_at <= filter_value)
                                 logging.debug(f"Filtering events created until: {filter_value}")
-                            if filter_name == "#e":
+                            elif filter_name == "#e":
                                 query = query.filter(Event.e_tags.in_(filter_value))
                                 logging.debug(f"Filtering events e tags: {filter_value}")
                             elif filter_name == "#p":
@@ -193,7 +195,7 @@ async def event_handler(websocket, path):
                 #
                         try:
                             results = query.all()
-                            logging.debug(f"Received event: {results}")
+                            logging.debug(f"Query {results}")
                             results_json = [Event.to_dict(r) for r in results]
                             logging.debug(f"Received event JSON: {results_json}")
                             response = json.dumps(results_json)
