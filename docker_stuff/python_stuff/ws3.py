@@ -64,6 +64,16 @@ class Event(Base):
             "content": event.content,
             "sig": event.sig
         }
+class TagFilter:
+    def apply(self, query: Query, tags: List[str], tag_type: str) -> Query:
+        if not tags:
+            return query
+        if tag_type == "#e":
+            return query.filter(Event.e_tags.any(lambda tag: tag["value"] in tags))
+        elif tag_type == "#p":
+            return query.filter(Event.p_tags.any(lambda tag: tag["value"] in tags))
+
+tag_filter = TagFilter()
 
 class Filter:
     def __init__(
@@ -97,15 +107,9 @@ class Filter:
         if self.tags:
             query = tag_filter.apply(query, self.tags.get("#e", []))
         if self.p_tags:
-            query = query.filter(Event.p_tags.any(lambda tag: tag["value"] in self.p_tags))
+            query = tag_filter.apply(query, self.tags.get("#p", []))
 
-class TagFilter:
-    def apply(self, query: Query, tags: List[str]) -> Query:
-        if not tags:
-            return query
-        return query.filter(Event.e_tags.any(lambda tag: tag["value"] in tags))
 
-tag_filter = TagFilter()
 
 
 
@@ -153,19 +157,35 @@ async def event_handler(websocket, path):
                 filters = message[2]
                 with SessionLocal() as db:
                     query = db.query(Event)
-                    for filter in filters:
-                        query = Filter.apply(query, filters)
-                    try:
-                        results = query.all()
-                        logging.debug(f"Received event: {results}")
-                        results_json = [Event.to_dict(r) for r in results]
-                        logging.debug(f"Received event JSON: {results_json}")
-                        response = json.dumps(results_json)
-                        await websocket.send(response)
-                        logging.debug("Successfully sent events to the client.")
-                    except Exception as e:
-                        logging.error("An error occurred while querying events: %s", e)
-        
+                    for filter_name, filter_value in filters.items():
+                        if filter_name == "ids":
+                            query = query.filter(Event.id.in_(filter_value))
+                        elif filter_name == "kinds":
+                            query = query.filter(Event.kind.in_(filter_value))
+                        elif filter_name == "authors":
+                            query = query.filter(Event.pubkey.in_(filter_value))
+                        elif filter_name == "since":
+                            query = query.filter(Event.created_at >= filter_value)
+                        elif filter_name == "until":
+                            query = query.filter(Event.created_at <= filter_value)
+                        elif filter_name == "p_tags":
+                            query = query.filter(Event.e_tags.any(lambda tag: tag["value"] in filter_value))
+                        elif filter_name == "p_tags":
+                            query = query.filter(Event.p_tags.any(lambda tag: tag["value"] in filter_value))
+                        elif filter_name == "limit":
+                            query = query.limit(filter_value)
+                
+                        try:
+                            results = query.all()
+                            logging.debug(f"Received event: {results}")
+                            results_json = [Event.to_dict(r) for r in results]
+                            logging.debug(f"Received event JSON: {results_json}")
+                            response = json.dumps(results_json)
+                            await websocket.send(response)
+                            logging.debug("Successfully sent events to the client.")
+                        except Exception as e:
+                            logging.error("An error occurred while querying events: %s", e)
+            
 
         finally:
             #await websocket.close()
