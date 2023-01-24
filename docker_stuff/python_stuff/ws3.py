@@ -25,6 +25,10 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+with SessionLocal() as db:
+    db.execute("CREATE EXTENSION IF NOT EXISTS "jsonb";")
+
+
 class Event(Base):
     __tablename__ = "event"
 
