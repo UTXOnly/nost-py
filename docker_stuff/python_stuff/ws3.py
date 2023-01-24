@@ -81,7 +81,7 @@ async def event_handler(websocket, path):
                     tag_relay = tag[2]
                     deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
 
-                new_event = Event(id=id, pubkey=pubkey, kinds=kind, created_at=created_at, tags=deserialized_tags, content=content, sig=sig)
+                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=deserialized_tags, content=content, sig=sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
