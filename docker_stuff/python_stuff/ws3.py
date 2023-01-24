@@ -6,7 +6,7 @@ import hmac
 import hashlib
 from time import time
 #from ddtrace import tracer
-from sqlalchemy import create_engine, Column, String, Integer, JSON, text
+from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy.ext.declarative import declarative_base
@@ -32,9 +32,9 @@ class Event(Base):
     pubkey = Column(String)
     kind = Column(Integer)
     created_at = Column(Integer)
-    tags = Column(JSON)
-    e_tags = Column(JSON)
-    p_tags = Column(JSON)
+    tags = Column(ARRAY(String))
+    e_tags = Column(ARRAY(String))
+    p_tags = Column(ARRAY(String))
     content = Column(String)
     sig = Column(String)
 
