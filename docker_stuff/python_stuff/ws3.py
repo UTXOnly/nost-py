@@ -143,6 +143,7 @@ async def event_handler(websocket, path):
                     deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
 
                 new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=deserialized_tags, content=content, sig=sig)
+                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at, deserialized_tags, content, sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
