@@ -126,9 +126,9 @@ async def event_handler(websocket, path):
                     if kinds:
                         query = query.filter(Event.kind.in_(kinds))
                     if e_tags:
-                        query = query.filter(Event.deserialized_tags.any(lambda tag: tag["type"] == "e" and tag["value"] in e_tags))
+                        query = query.filter(Event.e_tags.any(lambda tag: tag["value"] in e_tags))
                     if p_tags:
-                        query = query.filter(Event.deserialized_tags.any(lambda tag: tag["type"] == "p" and tag["value"] in p_tags))
+                        query = query.filter(Event.p_tags.any(lambda tag: tag["value"] in p_tags))
                     if since:
                         query = query.filter(Event.created_at >= since)
                     if until:
