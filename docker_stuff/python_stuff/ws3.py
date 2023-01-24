@@ -156,24 +156,32 @@ async def event_handler(websocket, path):
                 subscription_id = message[1]
                 filters = message[2]
                 with SessionLocal() as db:
-                    query = db.query(Event)
-                    for filter_name, filter_value in filters.items():
-                        if filter_name == "ids":
-                            query = query.filter(Event.id.in_(filter_value))
-                        elif filter_name == "kinds":
-                            query = query.filter(Event.kind.in_(filter_value))
-                        elif filter_name == "authors":
-                            query = query.filter(Event.pubkey.in_(filter_value))
-                        elif filter_name == "since":
-                            query = query.filter(Event.created_at >= filter_value)
-                        elif filter_name == "until":
-                            query = query.filter(Event.created_at <= filter_value)
-                        elif filter_name == "e_tags":
-                            query = query.filter(Event.e_tags.any(lambda tag: tag["value"] in filter_value))
-                        elif filter_name == "p_tags":
-                            query = query.filter(Event.p_tags.any(lambda tag: tag["value"] in filter_value))
-                        elif filter_name == "limit":
-                            query = query.limit(filter_value)
+                        query = db.query(Event)
+                        for filter_name, filter_value in filters.items():
+                            if filter_name == "ids":
+                                query = query.filter(Event.id.in_(filter_value))
+                                logging.debug(f"Filtering events by id: {filter_value}")
+                            elif filter_name == "kinds":
+                                query = query.filter(Event.kind.in_(filter_value))
+                                logging.debug(f"Filtering events by kind: {filter_value}")
+                            elif filter_name == "authors":
+                                query = query.filter(Event.pubkey.in_(filter_value))
+                                logging.debug(f"Filtering events by authors: {filter_value}")
+                            elif filter_name == "since":
+                                query = query.filter(Event.created_at >= filter_value)
+                                logging.debug(f"Filtering events created since: {filter_value}")
+                            elif filter_name == "until":
+                                query = query.filter(Event.created_at <= filter_value)
+                                logging.debug(f"Filtering events created until: {filter_value}")
+                            elif filter_name == "e_tags":
+                                query = query.filter(Event.e_tags.any(lambda tag: tag["value"] in filter_value))
+                                logging.debug(f"Filtering events e tags: {filter_value}")
+                            elif filter_name == "p_tags":
+                                query = query.filter(Event.p_tags.any(lambda tag: tag["value"] in filter_value))
+                                logging.debug(f"Filtering events p tags: {filter_value}")
+                            elif filter_name == "limit":
+                                query = query.limit(filter_value)
+                                logging.debug(f"Filtering limits: {filter_value}")
                 
                         try:
                             results = query.all()
