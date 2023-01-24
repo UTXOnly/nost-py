@@ -11,7 +11,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy.ext.declarative import declarative_base
 import logging
-
+import json
+from typing import List
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -111,8 +112,7 @@ tag_filter = TagFilter()
 
 Base.metadata.create_all(bind=engine)
 
-import json
-from typing import List
+
 connected_websockets = set()
 async def event_handler(websocket, path):
     connected_websockets.add(websocket)
