@@ -94,12 +94,9 @@ class Filter:
         if self.until:
             query = query.filter(Event.created_at <= self.until)
         if self.tags:
-            query = query.filter(Event.e_tags.in(lambda tag: tag["value"] in self.tags))
+            query = tag_filter.apply(query, self.tags.get("#e", []))
         if self.p_tags:
             query = query.filter(Event.p_tags.any(lambda tag: tag["value"] in self.p_tags))
-        if self.limit:
-            query = query.limit(self.limit)
-        return query
 
 class TagFilter:
     def apply(self, query: Query, tags: List[str]) -> Query:
@@ -157,7 +154,7 @@ async def event_handler(websocket, path):
                 with SessionLocal() as db:
                     query = db.query(Event)
                     for filter in filters:
-                        query = filter.apply(query)
+                        query = filter.apply(query, filters)
                     try:
                         results = query.all()
                         logging.debug(f"Received event: {results}")
