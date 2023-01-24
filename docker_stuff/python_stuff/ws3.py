@@ -6,7 +6,7 @@ import hmac
 import hashlib
 from time import time
 #from ddtrace import tracer
-from sqlalchemy import create_engine, Column, String, Integer, JSON
+from sqlalchemy import create_engine, Column, String, Integer, JSON, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -64,6 +64,43 @@ class Event(Base):
             "sig": event.sig
         }
 
+class Filter:
+    def __init__(
+            self, 
+            ids: "list[str]"=None, 
+            kinds: "list[int]"=None, 
+            authors: "list[str]"=None, 
+            since: int=None, 
+            until: int=None, 
+            tags: "dict[str, list[str]]"=None,
+            limit: int=None) -> None:
+        self.ids = ids
+        self.kinds = kinds
+        self.authors = authors
+        self.since = since
+        self.until = until
+        self.tags = tags
+        self.limit = limit
+
+    def apply(self, query: Query) -> Query:
+        if self.ids:
+            query = query.filter(Event.id.in_(self.ids))
+        if self.kinds:
+            query = query.filter(Event.kind.in_(self.kinds))
+        if self.authors:
+            query = query.filter(Event.pubkey.in_(self.authors))
+        if self.since:
+            query = query.filter(Event.created_at >= self.since)
+        if self.until:
+            query = query.filter(Event.created_at <= self.until)
+        if self.tags:
+            query = query.filter(Event.e_tags.any(lambda tag: tag["value"] in self.tags))
+        if self.p_tags:
+            query = query.filter(Event.p_tags.any(lambda tag: tag["value"] in self.p_tags))
+        if self.limit:
+            query = query.limit(self.limit)
+        return query
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -107,34 +144,10 @@ async def event_handler(websocket, path):
             elif message[0] == "REQ":
                 subscription_id = message[1]
                 filters = message[2]
-                ids = filters.get("ids", [])
-                authors = filters.get("authors", [])
-                kinds = filters.get("kinds", [])
-                e_tags = filters.get("#e", [])
-                p_tags = filters.get("#p", [])
-                since = filters.get("since", None)
-                until = filters.get("until", None)
-                limit = filters.get("limit", None)
-
-                # Use filters to query events from database and send to websocket
                 with SessionLocal() as db:
                     query = db.query(Event)
-                    if ids:
-                        query = query.filter(Event.id.in_(ids))
-                    if authors:
-                        query = query.filter(Event.pubkey.in_(authors))
-                    if kinds:
-                        query = query.filter(Event.kind.in_(kinds))
-                    if e_tags:
-                        query = query.filter(Event.e_tags.any(lambda tag: tag["value"] in e_tags))
-                    if p_tags:
-                        query = query.filter(Event.p_tags.any(lambda tag: tag["value"] in p_tags))
-                    if since:
-                        query = query.filter(Event.created_at >= since)
-                    if until:
-                        query = query.filter(Event.created_at <= until)
-                    if limit:
-                        query = query.limit(limit)
+                    for filter in filters:
+                        query = filter.apply(query)
                     try:
                         results = query.all()
                         logging.debug(f"Received event: {results}")
@@ -145,6 +158,8 @@ async def event_handler(websocket, path):
                         logging.debug("Successfully sent events to the client.")
                     except Exception as e:
                         logging.error("An error occurred while querying events: %s", e)
+        
+
         finally:
             #await websocket.close()
             logging.debug("Websocket connection closed.")
