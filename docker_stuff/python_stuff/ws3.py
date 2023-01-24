@@ -25,10 +25,6 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-with SessionLocal() as db:
-    db.execute("CREATE EXTENSION IF NOT EXISTS "jsonb";")
-
-
 class Event(Base):
     __tablename__ = "event"
 
@@ -182,11 +178,11 @@ async def event_handler(websocket, path):
                                 query = query.filter(Event.created_at <= filter_value)
                                 logging.debug(f"Filtering events created until: {filter_value}")
                             elif filter_name == "#e":
-                                query = query.filter(text("e_tags->'value' IN (SELECT jsonb_array_elements(:filter_value))").params(filter_value=filter_value))
-
+                                query = query.filter(Event.e_tags.contains(filter_value))
                                 logging.debug(f"Filtering events e tags: {filter_value}")
                             elif filter_name == "#p":
-                                query = query.filter(text("p_tags->'value' IN (SELECT jsonb_array_elements(:filter_value))").params(filter_value=filter_value))
+                                query = query.filter(Event.p_tags.contains(filter_value))
+                                logging.debug(f"Filtering events p tags: {filter_value}")
 
                                 logging.debug(f"Filtering events p tags: {filter_value}")
                             
