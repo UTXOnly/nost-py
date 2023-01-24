@@ -154,7 +154,7 @@ async def event_handler(websocket, path):
                 with SessionLocal() as db:
                     query = db.query(Event)
                     for filter in filters:
-                        query = filter.apply(query, filters)
+                        query = Filter.apply(query, filters)
                     try:
                         results = query.all()
                         logging.debug(f"Received event: {results}")
