@@ -93,25 +93,24 @@ class Filter:
         self.tags = tags
         self.limit = limit
 
-    class Filter:
-        def apply(self, query: Query) -> Query:
-            if self.ids:
-                query = query.filter(Event.id.in_(self.ids))
-            if self.kinds:
-                query = query.filter(Event.kind.in_(self.kinds))
-            if self.authors:
-                query = query.filter(Event.pubkey.in_(self.authors))
-            if self.since:
-                query = query.filter(Event.created_at >= self.since)
-            if self.limit:
-                query = query.limit(self.limit)
-            if self.until:
-                query = query.filter(Event.created_at <= self.until)
-    
-            if self.tags:
-                query = tag_filter.apply(query, self.tags.get("#e", []))
-            if self.p_tags:
-                query = tag_filter.apply(query, self.tags.get("#p", []))
+    def apply(self, query: Query) -> Query:
+        if self.ids:
+            query = query.filter(Event.id.in_(self.ids))
+        if self.kinds:
+            query = query.filter(Event.kind.in_(self.kinds))
+        if self.authors:
+            query = query.filter(Event.pubkey.in_(self.authors))
+        if self.since:
+            query = query.filter(Event.created_at >= self.since)
+        if self.until:
+            query = query.filter(Event.created_at <= self.until)
+        if self.limit:
+            query = query.limit(self.limit)
+        if self.tags:
+            query = tag_filter.apply(query, self.tags.get("#e", []), "#e")
+        if self.tags:
+            query = tag_filter.apply(query, self.tags.get("#p", []), "#p")
+        return query
 
 
 Base.metadata.create_all(bind=engine)
