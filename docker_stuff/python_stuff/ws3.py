@@ -6,7 +6,7 @@ import hmac
 import hashlib
 from time import time
 #from ddtrace import tracer
-from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text
+from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy.ext.declarative import declarative_base
@@ -34,9 +34,9 @@ class Event(Base):
     pubkey = Column(String)
     kind = Column(Integer)
     created_at = Column(Integer)
-    tags = Column(ARRAY(String))
-    e_tags = Column(ARRAY(String))
-    p_tags = Column(ARRAY(String))
+    tags = Column(JSON)
+    e_tags = Column(JSON)
+    p_tags = Column(JSON)
     content = Column(String)
     sig = Column(String)
 
@@ -185,12 +185,12 @@ async def event_handler(websocket, path):
                             elif filter_name == "#e":
                                 if filter_value:
                                     my_array = array(filter_value)
-                                    query = query.filter(Event.e_tags.op('@>')(my_array))
+                                    query = query.filter(Event.e_tags.op('@>')(cast(my_array, ARRAY(String()))))
                                     logging.debug(f"Filtering events e tags: {filter_value}")
                             elif filter_name == "#p":
                                 if filter_value:
                                     my_array = array(filter_value)
-                                    query = query.filter(Event.p_tags.op('@>')(my_array))
+                                    query = query.filter(Event.p_tags.op('@>')(cast(my_array, ARRAY(String()))))
                                     logging.debug(f"Filtering events p tags: {filter_value}")
 
 
