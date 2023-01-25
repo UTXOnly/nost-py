@@ -196,9 +196,9 @@ async def event_handler(websocket, path):
 
                                     
 
-                                query = query.filter(Event.__table__.columns.p_tags.contains(filter_value))
+                                #query = query.filter(Event.__table__.columns.p_tags.contains(filter_value))
                                 
-                                logging.debug(f"Filtering events p tags: {filter_value}")
+                                #logging.debug(f"Filtering events p tags: {filter_value}")
 
 
                             
@@ -213,7 +213,8 @@ async def event_handler(websocket, path):
                             logging.debug(f"Query {results}")
                             #results_json = [Event.to_dict(r) for r in results]
                             #logging.debug(f"Received event JSON: {results_json}")
-                            response = json.dumps(results)
+                            #response = json.dumps(results)
+                            response = results
                             await websocket.send(response)
                             logging.debug("Response JSON: {}".format(response))
                             logging.debug("Successfully sent events to the client.")
