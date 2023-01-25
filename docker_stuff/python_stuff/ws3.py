@@ -6,7 +6,7 @@ import hmac
 import hashlib
 from time import time
 #from ddtrace import tracer
-from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast, Text, JSONB
+from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast, Text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy.ext.declarative import declarative_base
