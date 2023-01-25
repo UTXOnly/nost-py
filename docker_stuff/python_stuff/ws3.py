@@ -190,14 +190,14 @@ async def event_handler(websocket, path):
                             elif filter_name == "#e":
                                 if filter_value:
 
-                                    query = query.filter(cast(Event.__table__.columns.e_tags, Json).op('@>')(filter_value))
+                                    query = query.filter(Event.__table__.columns.e_tags.contains(filter_value))
 
                                     logging.debug(f"Filtering events e tags: {filter_value}")
                             elif filter_name == "#p":
                                 if filter_value:
                                     
 
-                                    query = query.filter(cast(Event.__table__.columns.p_tags, Json).op('@>')(filter_value))
+                                    query = query.filter(Event.__table__.columns.p_tags.contains(filter_value))
                                     
                                     logging.debug(f"Filtering events p tags: {filter_value}")
 
