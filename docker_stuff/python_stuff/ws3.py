@@ -35,9 +35,9 @@ class Event(Base):
     pubkey = Column(String)
     kind = Column(Integer)
     created_at = Column(Integer)
-    tags = Column(JSON)
-    e_tags = Column(JSON)
-    p_tags = Column(JSON)
+    tags = Column(Text)
+    e_tags = Column(Text)
+    p_tags = Column(Text)
     content = Column(String)
     sig = Column(String)
 
@@ -141,7 +141,7 @@ async def event_handler(websocket, path):
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
                 kind = event.get("kind")
-                tags = event.get("tags")
+                #tags = event.get("tags")
                 content = event.get("content")
                 sig = event.get("sig")
 
