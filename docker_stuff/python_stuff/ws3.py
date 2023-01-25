@@ -73,10 +73,12 @@ class TagFilter:
         if not tags:
             return query
         if tag_type == "#e":
-            return query.filter(cast(Event.e_tags, Text).any(lambda tag: tag in tags))
+            return query.filter(Event.e_tags.contains(tags))
+
 
         elif tag_type == "#p":
-            return query.filter(cast(Event.p_tags, Text).any(lambda tag: tag in tags))
+            return query.filter(Event.p_tags.contains(tags))
+
 
 
 
