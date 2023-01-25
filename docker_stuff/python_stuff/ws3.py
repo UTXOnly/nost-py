@@ -80,7 +80,7 @@ class TagFilter:
 
 
 
-tag_filter = TagFilter()
+#tag_filter = TagFilter()
 
 class Filter:
     def __init__(
@@ -152,11 +152,11 @@ async def event_handler(websocket, path):
                 #my_array = array(deserialized_tags)
 
                 new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, content=content, sig=sig)
-                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at,  content, sig)
+                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, content: %s, sig: %s", id, pubkey, kind, created_at,  content, sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
-                        db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)", event_dict)
+                        db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :content, :sig)", event_dict)
                         logging.debug("Inserted event into database: ", event_dict)
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
