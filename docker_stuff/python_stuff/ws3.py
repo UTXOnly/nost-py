@@ -166,26 +166,26 @@ async def event_handler(websocket, path):
                 filters = message[2]
                 with SessionLocal() as db:
                         query = db.query(Event)
-                        for filter_name, filter_value in filters.items():
-                            #filter_value = filter_value if isinstance(filter_value, (list, tuple, set)) else [filter_value]
-
-                            if filter_name == "ids":
-                                query = query.filter(Event.id.in_(filter_value))
-                                logging.debug(f"Filtering events by id: {filter_value}")
-                            elif filter_name == "kinds":
-                                query = query.filter(Event.kind.in_(filter_value))
-                                logging.debug(f"Filtering events by kind: {filter_value}")
-                            elif filter_name == "authors":
-                                query = query.filter(Event.pubkey.in_(filter_value))
-                                logging.debug(f"Filtering events by authors: {filter_value}")
-                            elif filter_name == "since":
-                                query = query.filter(Event.created_at >= filter_value)
-                                logging.debug(f"Filtering events created since: {filter_value}")
-                            elif filter_name == "until":
-                                query = query.filter(Event.created_at <= filter_value)
-                                logging.debug(f"Filtering events created until: {filter_value}")
-                            #elif filter_name == "#e":
-                            #    
+                        #for filter_name, filter_value in filters.items():
+                        #    #filter_value = filter_value if isinstance(filter_value, (list, tuple, set)) else [filter_value]
+#
+                        #    if filter_name == "ids":
+                        #        query = query.filter(Event.id.in_(filter_value))
+                        #        logging.debug(f"Filtering events by id: {filter_value}")
+                        #    elif filter_name == "kinds":
+                        #        query = query.filter(Event.kind.in_(filter_value))
+                        #        logging.debug(f"Filtering events by kind: {filter_value}")
+                        #    elif filter_name == "authors":
+                        #        query = query.filter(Event.pubkey.in_(filter_value))
+                        #        logging.debug(f"Filtering events by authors: {filter_value}")
+                        #    elif filter_name == "since":
+                        #        query = query.filter(Event.created_at >= filter_value)
+                        #        logging.debug(f"Filtering events created since: {filter_value}")
+                        #    elif filter_name == "until":
+                        #        query = query.filter(Event.created_at <= filter_value)
+                        #        logging.debug(f"Filtering events created until: {filter_value}")
+                        #    #elif filter_name == "#e":
+                        #    #    
 #
                             #    query = query.filter(Event.__table__.columns.e_tags.contains(filter_value))
                             #    logging.debug(f"Filtering events e tags: {filter_value}")
