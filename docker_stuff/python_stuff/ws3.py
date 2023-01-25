@@ -6,7 +6,7 @@ import hmac
 import hashlib
 from time import time
 #from ddtrace import tracer
-from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast
+from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast, Text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, Query
 from sqlalchemy.ext.declarative import declarative_base
@@ -73,9 +73,11 @@ class TagFilter:
         if not tags:
             return query
         if tag_type == "#e":
-            return query.filter(Event.e_tags.any(lambda tag: tag in tags))
+            return query.filter(cast(Event.e_tags, Text).any(lambda tag: tag in tags))
+
         elif tag_type == "#p":
-            return query.filter(Event.p_tags.any(lambda tag: tag in tags))
+            return query.filter(cast(Event.p_tags, Text).any(lambda tag: tag in tags))
+
 
 
 tag_filter = TagFilter()
