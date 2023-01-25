@@ -41,14 +41,14 @@ class Event(Base):
     content = Column(String)
     sig = Column(String)
 
-    def __init__(self, id, pubkey, kind, created_at, tags, e_tags, p_tags, content, sig):
+    def __init__(self, id, pubkey, kind, created_at, content, sig):
         self.id = id
         self.pubkey = pubkey
         self.kind = kind
         self.created_at = created_at
-        self.tags = tags
-        self.e_tags = e_tags
-        self.p_tags = p_tags
+        #self.tags = tags
+        #self.e_tags = e_tags
+        #self.p_tags = p_tags
         self.content = content
         self.sig = sig
 
@@ -63,9 +63,6 @@ class Event(Base):
             "pubkey": event.pubkey,
             "kind": event.kind,
             "created_at": event.created_at,
-            "tags": event.tags,
-            "e_tags": event.e_tags,
-            "p_tags": event.p_tags,
             "content": event.content,
             "sig": event.sig
         }
