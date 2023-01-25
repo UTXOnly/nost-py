@@ -8,7 +8,7 @@ from time import time
 #from ddtrace import tracer
 from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast, Text
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import sessionmaker, Query
+from sqlalchemy.orm import sessionmaker, Query, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import array
 from psycopg2.extras import Json
@@ -122,7 +122,8 @@ class Filter:
 
 
 Base.metadata.create_all(bind=engine)
-
+Session = sessionmaker(bind=engine)
+session = Session()
 
 connected_websockets = set()
 async def event_handler(websocket, path):
@@ -206,15 +207,18 @@ async def event_handler(websocket, path):
                             #    logging.debug(f"Filtering limits: {filter_value}")
                 #
                         #try:
-                        results = query.all()
-                        print(results)
-                        logging.debug(f"Query {results}")
+                        entries = session.query(event).all()
+                        print(entries)
+
+                        #results = query.all()
+                        #print(results)
+                        #logging.debug(f"Query {results}")
                         #results_json = [Event.to_dict(r) for r in results]
                             #logging.debug(f"Received event JSON: {results_json}")
-                            #response = json.dumps(results)
-                        response = results
-                        await websocket.send(response)
-                        logging.debug("Response JSON: {}".format(response))
+                        #    #response = json.dumps(results)
+                        #response = results
+                        await websocket.send(entries)
+                        logging.debug("Response JSON: ".format(entries))
                         logging.debug("Successfully sent events to the client.")
                         #except Exception as e:
                         #    logging.error("An error occurred while querying events: %s", e)
