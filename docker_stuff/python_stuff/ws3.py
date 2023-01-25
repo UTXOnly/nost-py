@@ -207,7 +207,7 @@ async def event_handler(websocket, path):
                             #    logging.debug(f"Filtering limits: {filter_value}")
                 #
                         #try:
-                        entries = session.query(event).all()
+                        entries = session.query(Event).all()
                         print(entries)
 
                         #results = query.all()
