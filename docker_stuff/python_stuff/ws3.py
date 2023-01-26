@@ -121,8 +121,8 @@ class Filter:
 
 
 Base.metadata.create_all(bind=engine)
-Session = sessionmaker(bind=engine)
-session = Session()
+#Session = sessionmaker(bind=engine)
+#session = Session()
 
 connected_websockets = set()
 async def event_handler(websocket, path):
@@ -201,7 +201,7 @@ async def event_handler(websocket, path):
                             #    logging.debug(f"Filtering limits: {filter_value}")
                 
                         try:
-                            entries = session.query(Event).all()
+                            entries = db.query(Event).all()
                             logging.debug("Entries: %s", entries)
     
                             results = query.all()
