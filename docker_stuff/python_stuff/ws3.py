@@ -165,7 +165,7 @@ async def event_handler(websocket, path):
             elif message[0] == "REQ":
                 subscription_id = message[1]
                 filters = message[2]
-                logging.debug(filters)
+                logging.debug(f"Filters are:{filters}")
                 with SessionLocal() as db:
                         query = db.query(Event)
                         for filter_name, filter_value in filters.items():
@@ -195,10 +195,10 @@ async def event_handler(websocket, path):
                                 query = query.filter(Event.__table__.columns.p_tags.contains(filter_value))                               
                                 logging.debug(f"Filtering events p tags: {filter_value}")                          
                             elif filter_name == "limit":
-
-                                query = query.limit(int(filter_value))
+                                limit_value = int(filter_value)
+                                query = query.limit(limit_value)
                                 logging.debug(f"Filtering limits: {filter_value}")
-                #
+                
                         try:
                             entries = session.query(Event).all()
                             #logging.debug(entries)
@@ -207,7 +207,7 @@ async def event_handler(websocket, path):
                             print(results)
                             logging.debug(f"Query {results}")
                             results_json = [Event.to_dict(r) for r in results]
-                               #logging.debug(f"Received event JSON: {results_json}")
+                            logging.debug(f"Received event JSON: {results_json}")
                                 #response = json.dumps(results)
                             response = results
                             await websocket.send(entries)
