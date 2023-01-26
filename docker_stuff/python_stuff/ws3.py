@@ -208,7 +208,7 @@ async def event_handler(websocket, path):
                 #
                         #try:
                         entries = session.query(Event).all()
-                        print(entries)
+                        logging.debug(entries)
 
                         #results = query.all()
                         #print(results)
