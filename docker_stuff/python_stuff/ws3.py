@@ -201,19 +201,19 @@ async def event_handler(websocket, path):
                             #    logging.debug(f"Filtering limits: {filter_value}")
                 
                         try:
-                            entries = db.query(Event).all()
-                            logging.debug("Entries: %s", entries)
+                            results = db.query(Event).all()
+                            logging.debug("Entries: %s", results)
     
-                            results = query.all()
-                            print(results)
+                            #results = query.all()
+                            #print(results)
                             logging.debug(f"Query {results}")
                             results_json = [Event.to_dict(r) for r in results]
                             logging.debug(f"Received event JSON: {results_json}")
                                 #response = json.dumps(results)
                             #response = results
-                            await websocket.send(entries)
-                            logging.debug("Response JSON: ".format(entries))
-                            print(entries)
+                            await websocket.send(results_json)
+                            logging.debug("Response JSON: ".format(results))
+                            
                             logging.debug("Successfully sent events to the client.")
                         except Exception as e:
                             logging.error("An error occurred while querying events: %s", e)
