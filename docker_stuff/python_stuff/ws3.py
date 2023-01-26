@@ -139,8 +139,6 @@ async def event_handler(websocket, path):
                 created_at = event.get("created_at")
                 kind = event.get("kind")
                 tags = event.get("tags")
-                e_tags = e_tags.get("e_tags")
-                p_tags = p_tags.get("p_tags")
                 content = event.get("content")
                 sig = event.get("sig")
 
@@ -153,8 +151,8 @@ async def event_handler(websocket, path):
                     deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
                 #my_array = array(deserialized_tags)
 
-                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, e_tags=e_tags, p_tags=p_tags, content=content, sig=sig)
-                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, e_tags: %s, p_tags %, content: %s, sig: %s", id, pubkey, kind, created_at, e_tags, p_tags,  content, sig)
+                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=deserialized_tags, content=content, sig=sig)
+                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at, deserialized_tags,  content, sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
