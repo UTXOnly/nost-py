@@ -139,17 +139,17 @@ async def event_handler(websocket, path):
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
                 kind = event.get("kind")
-                #tags = event.get("tags")
+                tags = event.get("tags")
                 content = event.get("content")
                 sig = event.get("sig")
 
-                # Deserialize tags
-                #deserialized_tags = []
-                #for tag in tags:
-                #    tag_type = tag[0]
-                #    tag_value = tag[1]
-                #    tag_relay = tag[2]
-                #    deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
+                 #Deserialize tags
+                deserialized_tags = []
+                for tag in tags:
+                    tag_type = tag[0]
+                    tag_value = tag[1]
+                    tag_relay = tag[2]
+                    deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
                 #my_array = array(deserialized_tags)
 
                 new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, content=content, sig=sig)
@@ -165,64 +165,56 @@ async def event_handler(websocket, path):
             elif message[0] == "REQ":
                 subscription_id = message[1]
                 filters = message[2]
+                logging.debug(filters)
                 with SessionLocal() as db:
-                        #query = db.query(Event)
-                        #for filter_name, filter_value in filters.items():
-                        #    #filter_value = filter_value if isinstance(filter_value, (list, tuple, set)) else [filter_value]
-#
-                        #    if filter_name == "ids":
-                        #        query = query.filter(Event.id.in_(filter_value))
-                        #        logging.debug(f"Filtering events by id: {filter_value}")
-                        #    elif filter_name == "kinds":
-                        #        query = query.filter(Event.kind.in_(filter_value))
-                        #        logging.debug(f"Filtering events by kind: {filter_value}")
-                        #    elif filter_name == "authors":
-                        #        query = query.filter(Event.pubkey.in_(filter_value))
-                        #        logging.debug(f"Filtering events by authors: {filter_value}")
-                        #    elif filter_name == "since":
-                        #        query = query.filter(Event.created_at >= filter_value)
-                        #        logging.debug(f"Filtering events created since: {filter_value}")
-                        #    elif filter_name == "until":
-                        #        query = query.filter(Event.created_at <= filter_value)
-                        #        logging.debug(f"Filtering events created until: {filter_value}")
-                        #    #elif filter_name == "#e":
-                        #    #    
-#
-                            #    query = query.filter(Event.__table__.columns.e_tags.contains(filter_value))
-                            #    logging.debug(f"Filtering events e tags: {filter_value}")
-                            #elif filter_name == "#p":
+                        query = db.query(Event)
+                        for filter_name, filter_value in filters.items():
+                            logging.debug(filter_name, filter_value)
+                            #filter_value = filter_value if isinstance(filter_value, (list, tuple, set)) else [filter_value]
 
-                                    
+                            if filter_name == "ids":
+                                query = query.filter(Event.id.in_(filter_value))
+                                logging.debug(f"Filtering events by id: {filter_value}")
+                            elif filter_name == "kinds":
+                                query = query.filter(Event.kind.in_(filter_value))
+                                logging.debug(f"Filtering events by kind: {filter_value}")
+                            elif filter_name == "authors":
+                                query = query.filter(Event.pubkey.in_(filter_value))
+                                logging.debug(f"Filtering events by authors: {filter_value}")
+                            elif filter_name == "since":
+                                query = query.filter(Event.created_at >= filter_value)
+                                logging.debug(f"Filtering events created since: {filter_value}")
+                            elif filter_name == "until":
+                                query = query.filter(Event.created_at <= filter_value)
+                                logging.debug(f"Filtering events created until: {filter_value}")
+                            elif filter_name == "#e":
+                                query = query.filter(Event.__table__.columns.e_tags.contains(filter_value))
+                                logging.debug(f"Filtering events e tags: {filter_value}")
+                            elif filter_name == "#p":
+                                query = query.filter(Event.__table__.columns.p_tags.contains(filter_value))                               
+                                logging.debug(f"Filtering events p tags: {filter_value}")                          
+                            elif filter_name == "limit":
 
-                                #query = query.filter(Event.__table__.columns.p_tags.contains(filter_value))
-                                
-                                #logging.debug(f"Filtering events p tags: {filter_value}")
-
-
-                            
-                            #elif filter_name == "limit":
-  ##
-##
-                            #    query = query.limit(25)
-                            #    logging.debug(f"Filtering limits: {filter_value}")
+                                query = query.limit()
+                                logging.debug(f"Filtering limits: {filter_value}")
                 #
-                        #try:
-                        entries = session.query(Event).all()
-                        logging.debug(entries)
-
-                        #results = query.all()
-                        #print(results)
-                        #logging.debug(f"Query {results}")
-                        #results_json = [Event.to_dict(r) for r in results]
-                            #logging.debug(f"Received event JSON: {results_json}")
-                        #    #response = json.dumps(results)
-                        #response = results
-                        await websocket.send(entries)
-                        logging.debug("Response JSON: ".format(entries))
-                        print(entries)
-                        logging.debug("Successfully sent events to the client.")
-                        #except Exception as e:
-                        #    logging.error("An error occurred while querying events: %s", e)
+                        try:
+                            entries = session.query(Event).all()
+                            logging.debug(entries)
+    
+                            results = query.all()
+                            print(results)
+                            logging.debug(f"Query {results}")
+                            results_json = [Event.to_dict(r) for r in results]
+                               #logging.debug(f"Received event JSON: {results_json}")
+                                #response = json.dumps(results)
+                            response = results
+                            await websocket.send(entries)
+                            logging.debug("Response JSON: ".format(entries))
+                            print(entries)
+                            logging.debug("Successfully sent events to the client.")
+                        except Exception as e:
+                            logging.error("An error occurred while querying events: %s", e)
             
 
         finally:
