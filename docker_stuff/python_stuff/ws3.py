@@ -40,15 +40,16 @@ class Event(Base):
     p_tags = Column(Text)
     content = Column(String)
     sig = Column(String)
+    
 
-    def __init__(self, id, pubkey, kind, created_at, content, sig):
+    def __init__(self, id, pubkey, kind, created_at, e_tags, p_tags, content, sig):
         self.id = id
         self.pubkey = pubkey
         self.kind = kind
         self.created_at = created_at
         #self.tags = tags
-        #self.e_tags = e_tags
-        #self.p_tags = p_tags
+        self.e_tags = e_tags
+        self.p_tags = p_tags
         self.content = content
         self.sig = sig
 
@@ -76,8 +77,6 @@ class TagFilter:
 
         elif tag_type == "#p":
             return query.filter(Event.p_tags.contains(tags))
-
-
 
 
 tag_filter = TagFilter()
@@ -140,6 +139,8 @@ async def event_handler(websocket, path):
                 created_at = event.get("created_at")
                 kind = event.get("kind")
                 tags = event.get("tags")
+                e_tags = e_tags.get("e_tags")
+                p_tags = p_tags.get("p_tags")
                 content = event.get("content")
                 sig = event.get("sig")
 
@@ -152,8 +153,8 @@ async def event_handler(websocket, path):
                     deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
                 #my_array = array(deserialized_tags)
 
-                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, content=content, sig=sig)
-                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, content: %s, sig: %s", id, pubkey, kind, created_at,  content, sig)
+                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, e_tags=e_tags, p_tags=p_tags, content=content, sig=sig)
+                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, e_tags: %s, p_tags %, content: %s, sig: %s", id, pubkey, kind, created_at, e_tags, p_tags,  content, sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
@@ -194,10 +195,10 @@ async def event_handler(websocket, path):
                             elif filter_name == "#p":
                                 query = query.filter(Event.__table__.columns.p_tags.contains(filter_value))                               
                                 logging.debug(f"Filtering events p tags: {filter_value}")                          
-                            elif filter_name == "limit":
-                                limit_value = int(filter_value)
-                                query = query.limit(limit_value)
-                                logging.debug(f"Filtering limits: {filter_value}")
+                            #elif filter_name == "limit":
+                            #    limit_value = int(filter_value)
+                            #    query = query.limit(limit_value)
+                            #    logging.debug(f"Filtering limits: {filter_value}")
                 
                         try:
                             entries = session.query(Event).all()
@@ -209,7 +210,7 @@ async def event_handler(websocket, path):
                             results_json = [Event.to_dict(r) for r in results]
                             logging.debug(f"Received event JSON: {results_json}")
                                 #response = json.dumps(results)
-                            response = results
+                            #response = results
                             await websocket.send(entries)
                             logging.debug("Response JSON: ".format(entries))
                             print(entries)
