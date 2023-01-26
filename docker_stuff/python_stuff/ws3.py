@@ -80,7 +80,7 @@ class TagFilter:
 
 
 
-#tag_filter = TagFilter()
+tag_filter = TagFilter()
 
 class Filter:
     def __init__(
@@ -166,7 +166,7 @@ async def event_handler(websocket, path):
                 subscription_id = message[1]
                 filters = message[2]
                 with SessionLocal() as db:
-                        query = db.query(Event)
+                        #query = db.query(Event)
                         #for filter_name, filter_value in filters.items():
                         #    #filter_value = filter_value if isinstance(filter_value, (list, tuple, set)) else [filter_value]
 #
@@ -219,6 +219,7 @@ async def event_handler(websocket, path):
                         #response = results
                         await websocket.send(entries)
                         logging.debug("Response JSON: ".format(entries))
+                        print(entries)
                         logging.debug("Successfully sent events to the client.")
                         #except Exception as e:
                         #    logging.error("An error occurred while querying events: %s", e)
