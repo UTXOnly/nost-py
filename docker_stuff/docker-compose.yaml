@@ -47,6 +47,7 @@ services:
           "password": "nostr",
           "dbname": "nostr"
         }]]'
+      com.datadoghq.ad.logs: '[{"source":"postgresql","service":"postgresql"}]'
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nostr"] # database username here - nostr, should be changed if other user
