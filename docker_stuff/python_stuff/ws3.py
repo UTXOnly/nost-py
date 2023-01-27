@@ -129,7 +129,7 @@ def deserialize_tags(tags):
         tag_value = tag[1]
         tag_relay = tag[2]
         deserialize_tag = ({"type": tag_type, "value": tag_value, "relay": tag_relay})
-        return deserialize_tag
+        return [deserialize_tag]
 
 connected_websockets = set()
 async def event_handler(websocket, path):
