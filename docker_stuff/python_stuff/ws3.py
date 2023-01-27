@@ -183,7 +183,7 @@ async def event_handler(websocket, path):
                 with SessionLocal() as db:
                         query = db.query(Event)
                         for filter_name, filter_value in filters.items():
-                            logging.debug("{}: {}".format(filter_name, filter_value))
+                            logging.debug("For loop filters are: {}: {}".format(filter_name, filter_value))
 
                             #filter_value = filter_value if isinstance(filter_value, (list, tuple, set)) else [filter_value]
 
