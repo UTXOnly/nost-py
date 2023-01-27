@@ -138,21 +138,22 @@ async def event_handler(websocket, path):
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
                 kind = event.get("kind")
-                tags = event.get("tags")
+                tags = deserialize_tags(event.get("tags"))
                 content = event.get("content")
                 sig = event.get("sig")
 
                  #Deserialize tags
                 deserialized_tags = []
-                for tag in tags:
-                    tag_type = tag[0]
-                    tag_value = tag[1]
-                    tag_relay = tag[2]
-                    deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
+                def deserialize_tags(tags):
+                    for tag in tags:
+                        tag_type = tag[0]
+                        tag_value = tag[1]
+                        tag_relay = tag[2]
+                        deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
                 #my_array = array(deserialized_tags)
 
-                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=deserialized_tags, content=content, sig=sig)
-                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at, deserialized_tags,  content, sig)
+                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
+                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at, tags,  content, sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
