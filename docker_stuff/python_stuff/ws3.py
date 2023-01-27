@@ -160,7 +160,7 @@ async def event_handler(websocket, path):
                         #db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)", event_dict)
                         db.execute(text("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
 
-                        logging.debug("Inserted event into database: ", event_dict)
+                        logging.debug("Inserted event into database: %s", event_dict)
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
                         await websocket.send(json.dumps({"error": str(e)}))
@@ -213,7 +213,7 @@ async def event_handler(websocket, path):
                                 #response = json.dumps(results)
                             #response = results
                             await websocket.send(results_json)
-                            logging.debug("Response JSON: ".format(results))
+                            logging.debug("Response JSON: ".format(results_json))
                             
                             logging.debug("Successfully sent events to the client.")
                         except Exception as e:
