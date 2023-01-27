@@ -29,7 +29,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 class Event(Base):
-    __tablename__ = "event"
+    __tablename__ = "event_table"
 
     id = Column(String, primary_key=True)
     pubkey = Column(String)
