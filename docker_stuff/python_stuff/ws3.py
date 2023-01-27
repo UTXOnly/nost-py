@@ -123,6 +123,13 @@ class Filter:
 Base.metadata.create_all(bind=engine)
 #Session = sessionmaker(bind=engine)
 #session = Session()
+def deserialize_tags(tags):
+    for tag in tags:
+        tag_type = tag[0]
+        tag_value = tag[1]
+        tag_relay = tag[2]
+        deserialize_tag = ({"type": tag_type, "value": tag_value, "relay": tag_relay})
+        return deserialize_tag
 
 connected_websockets = set()
 async def event_handler(websocket, path):
@@ -143,13 +150,9 @@ async def event_handler(websocket, path):
                 sig = event.get("sig")
 
                  #Deserialize tags
-                deserialized_tags = []
-                def deserialize_tags(tags):
-                    for tag in tags:
-                        tag_type = tag[0]
-                        tag_value = tag[1]
-                        tag_relay = tag[2]
-                        deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
+                #deserialized_tags = []
+                
+                        #deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
                 #my_array = array(deserialized_tags)
 
                 new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
