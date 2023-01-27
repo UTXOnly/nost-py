@@ -160,15 +160,19 @@ async def event_handler(websocket, path):
                         #db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)", event_dict)
                         db.execute(text("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
 
+#                        logging.debug("Inserted event into database: %s", event_dict)
+#                        query = db.query(Event)
+#                        entered = query.all()
+                        #for event in entered:
+                        #    print(event.id, event.pubkey, event.kind, event.created_at, event.tags, event.content, event.sig)
+                        #logging.debug("Results of querying this entry from db: ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", event.id, event.pubkey, event.kind, event.created_at, event.tags, event.content, event.sig)
                         logging.debug("Inserted event into database: %s", event_dict)
-                        query = db.query(Event)
-                        entered = query.all()
-                        for event in entered:
-                            print(event.id, event.pubkey, event.kind, event.created_at, event.tags, event.content, event.sig)
-                        logging.debug("Results of querying this entry from db: ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", event.id, event.pubkey, event.kind, event.created_at, event.tags, event.content, event.sig)
+                        query = db.query(Event).filter_by(id=id)
+                        entered = query.first()
+                        logging.debug("Results of querying this entry from db: ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", entered.id, entered.pubkey, entered.kind, entered.created_at, entered.tags, entered.content, entered.sig)
+    
 
-
-                        logging.debug("Results of querying this entry from db: %s", str(entered))
+                        #logging.debug("Results of querying this entry from db: %s", str(entered))
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
                         await websocket.send(json.dumps({"error": str(e)}))
