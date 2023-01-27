@@ -163,7 +163,7 @@ async def event_handler(websocket, path):
                         logging.debug("Inserted event into database: %s", event_dict)
                         query = db.query(Event)
                         entered = query.all()
-                        logging.debug("Results of querying this entry from db: %s", entered)
+                        logging.debug("Results of querying this entry from db: %s", str(entered))
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
                         await websocket.send(json.dumps({"error": str(e)}))
