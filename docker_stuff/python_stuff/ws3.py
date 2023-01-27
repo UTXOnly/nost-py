@@ -188,10 +188,10 @@ async def event_handler(websocket, path):
                                 query = query.filter(Event.created_at <= filter_value)
                                 logging.debug(f"Filtering events created until: {filter_value}")
                             elif filter_name == "#e":
-                                query = query.filter(Event.__table__.columns.e_tags.contains(filter_value))
+                                query = query.filter(Event.__table__.columns.tags.contains(filter_value))
                                 logging.debug(f"Filtering events e tags: {filter_value}")
                             elif filter_name == "#p":
-                                query = query.filter(Event.__table__.columns.p_tags.contains(filter_value))                               
+                                query = query.filter(Event.__table__.columns.tags.contains(filter_value))                               
                                 logging.debug(f"Filtering events p tags: {filter_value}")                          
                             #elif filter_name == "limit":
                             #    limit_value = int(filter_value)
