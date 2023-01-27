@@ -9,4 +9,4 @@ RUN pip install --upgrade pip
 
 COPY ./python_stuff .
 
-CMD ["ddtrace -run","python", "ws3.py"]
+CMD ["ddtrace-run","python", "ws3.py"]
