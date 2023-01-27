@@ -60,6 +60,7 @@ class Event(Base):
             "pubkey": event.pubkey,
             "kind": event.kind,
             "created_at": event.created_at,
+            "tags": event.tags,
             "content": event.content,
             "sig": event.sig
         }
