@@ -40,13 +40,14 @@ services:
       com.datadoghq.ad.check_names: '[postgres]'
       com.datadoghq.ad.init_configs: '["init_config": null]'
       com.datadoghq.ad.instances: '[  "instances": [
-                                        {
-                                          "host": "localhost",
-                                          "port": 5432,
-                                          "username": "nostr",
-                                          "password": "nostr",
-                                          "dbname": "nostr"
-                                        }]'
+        {
+          "host": "localhost",
+          "port": 5432,
+          "username": "nostr",
+          "password": "nostr",
+          "dbname": "nostr"
+        }]]'
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nostr"] # database username here - nostr, should be changed if other user
       interval: 10s
