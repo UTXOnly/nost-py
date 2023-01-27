@@ -204,10 +204,11 @@ async def event_handler(websocket, path):
                         try:
                             logging.debug(f"Query: {str(query)}")
 
-                            results = db.query().all()
+                            #results = db.query().all()
+                            results = query.all()
                             logging.debug("Entries: %s", results)
     
-                            #results = query.all()
+                            #
                             #print(results)
                             logging.debug(f"Query {results}")
                             results_json = [Event.to_dict(r) for r in results]
