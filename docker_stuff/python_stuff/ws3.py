@@ -156,7 +156,7 @@ async def event_handler(websocket, path):
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
-                        db.execute("INSERT INTO event (id, pubkey, kind, created_at, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :content, :sig)", event_dict)
+                        db.execute(Text("INSERT INTO event (id, pubkey, kind, created_at, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :content, :sig)", event_dict))
                         logging.debug("Inserted event into database: ", event_dict)
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
