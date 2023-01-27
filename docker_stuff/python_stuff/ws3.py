@@ -218,7 +218,7 @@ async def event_handler(websocket, path):
 
                             #results = db.query().all()
                             results = query.all()
-                            logging.debug("Entries: %s", results)
+                            logging.debug("Entries: %s", {str(results)})
     
                             #
                             #print(results)
