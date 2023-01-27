@@ -225,7 +225,7 @@ async def event_handler(websocket, path):
                             logging.debug(f"Query {results}")
                             results_json = [Event.to_dict(r) for r in results]
                             logging.debug(f"Received event JSON: {results_json}")
-                            logging.debug("String test: %s", results)
+                            logging.debug("String test: %s", {str(results)})
                             logging.debug("JSON test: {}".format(json.dumps(results)))
 
                                 #response = json.dumps(results)
