@@ -36,18 +36,18 @@ services:
       #- POSTGRES_INITDB_ARGS=--extension=jsonb_ops
     ports:
       - 5432:5432
-    labels:
-      com.datadoghq.ad.check_names: '[postgres]'
-      com.datadoghq.ad.init_configs: '["init_config": null]'
-      com.datadoghq.ad.instances: '[  "instances": [
-        {
-          "host": "localhost",
-          "port": 5432,
-          "username": "nostr",
-          "password": "nostr",
-          "dbname": "nostr"
-        }]]'
-      com.datadoghq.ad.logs: '[{"source":"postgresql","service":"postgresql"}]'
+    #labels:
+    #  com.datadoghq.ad.check_names: '[postgres]'
+    #  com.datadoghq.ad.init_configs: '["init_config": null]'
+    #  com.datadoghq.ad.instances: '[  "instances": [
+    #    {
+    #      "host": "localhost",
+    #      "port": 5432,
+    #      "username": "nostr",
+    #      "password": "nostr",
+    #      "dbname": "nostr"
+    #    }]]'
+    #  com.datadoghq.ad.logs: '[{"source":"postgresql","service":"postgresql"}]'
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nostr"] # database username here - nostr, should be changed if other user
