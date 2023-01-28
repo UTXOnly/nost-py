@@ -118,7 +118,7 @@ async def event_handler(websocket, path):
                 new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
 
             # Save the event to the database
-            save_event(new_event)
+                save_event(new_event)
             
             # Notify connected websockets of the new event
             #notify_connected_clients(received_data)
