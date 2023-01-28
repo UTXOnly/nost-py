@@ -192,7 +192,7 @@ async def event_handler(websocket, path):
                             logging.debug(f"Query: {str(query)}")
                             t = text("SELECT * FROM event_table")
                             result = db.execute(t).fetchall()
-                            for row in results:
+                            for row in result:
                                 print(row.column1, row.column2, row.column3)
                             logging.debug("Entries: %s", result)
                             logging.debug("Entries_plain: %s", {result})
