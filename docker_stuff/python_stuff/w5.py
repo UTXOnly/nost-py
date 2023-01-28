@@ -85,7 +85,7 @@ async def event_handler(websocket, path):
         try:
             event_data = await websocket.recv()
             logging.debug(f"Received event: {event_data}")
-            #received_data = json.loads(event_data)
+            received_data = json.loads(event_data)
             #           # Verify the signature of the event
             ###secret_key = "your_secret_key"
             ###signature = received_data["sig"]
