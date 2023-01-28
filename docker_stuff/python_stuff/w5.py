@@ -50,6 +50,22 @@ class Event:
     @property
     def p_tags(self):
         return self.get_tags_keys("p")
+    
+    @staticmethod
+    def from_dict(event_dict):
+        return Event(**event_dict)
+
+    @staticmethod
+    def to_dict(event):
+        return {
+            "id": event.id,
+            "pubkey": event.pubkey,
+            "kind": event.kind,
+            "created_at": event.created_at,
+            "tags": event.tags,
+            "content": event.content,
+            "sig": event.sig
+        }
 
 def save_event(received_data: dict):
     event = Event.from_dict(received_data)
@@ -69,15 +85,15 @@ async def event_handler(websocket, path):
         try:
             event_data = await websocket.recv()
             logging.debug(f"Received event: {event_data}")
-            received_data = json.loads(event_data)
-                       # Verify the signature of the event
-            secret_key = "your_secret_key"
-            signature = received_data["sig"]
-            del received_data["sig"]
-            message = json.dumps(received_data)
-            computed_signature = hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).hexdigest()
-            if not hmac.compare_digest(computed_signature, signature):
-                raise ValueError("Invalid signature")
+            #received_data = json.loads(event_data)
+            #           # Verify the signature of the event
+            ###secret_key = "your_secret_key"
+            ###signature = received_data["sig"]
+            ###del received_data["sig"]
+            ##message = json.dumps(received_data)
+            ##computed_signature = hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).hexdigest()
+            #if not hmac.compare_digest(computed_signature, signature):
+            #    raise ValueError("Invalid signature")
             
 
 
