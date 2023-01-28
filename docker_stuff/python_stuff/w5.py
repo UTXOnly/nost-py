@@ -71,7 +71,7 @@ class Event:
         }
 
 def save_event(received_data: dict):
-    #event = Event.from_dict(received_data)
+    event = Event.to_dict(received_data)
     event = received_data
     session = Session()
     session.add(event)
