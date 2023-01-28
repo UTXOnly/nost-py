@@ -76,22 +76,22 @@ class Event:
         }
 
 
-def save_event(received_data: dict):
-    
-    event = received_data
-    session = Session()
-    logging.debug("Adding event to session")
-    session.add(event)
-    logging.debug("Committing event to session")
-    session.commit()
-    #logging.debug("Closing session")
-    #session.close()
+#def save_event(received_data: dict):
+#    
+#    event = received_data
+#    session = Session()
+#    logging.debug("Adding event to session")
+#    session.add(event)
+#    logging.debug("Committing event to session")
+#    session.commit()
+#    #logging.debug("Closing session")
+#    #session.close()
 
-def notify_connected_clients(received_data: dict):
-    event = Event.from_dict(received_data)
-    for ws in connected_websockets:
-        logging.debug("Sending event to connected websockets")
-        ws.send(event.to_json())
+#def notify_connected_clients(received_data: dict):
+#    event = Event.from_dict(received_data)
+#    for ws in connected_websockets:
+#        logging.debug("Sending event to connected websockets")
+#        ws.send(event.to_json())
 
 connected_websockets = set()
 async def event_handler(websocket, path):
@@ -145,7 +145,7 @@ async def event_handler(websocket, path):
             logging.exception(e)
             break
         finally:
-            await websocket.close()
+            #await websocket.close()
             logging.debug("Websocket connection closed.")
 
 if __name__ == "__main__":
