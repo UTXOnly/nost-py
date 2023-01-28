@@ -182,7 +182,7 @@ async def event_handler(websocket, path):
                                 logging.debug(f"Filtering events p tags: {filter_value}")                          
                             elif filter_name == "limit":
                                 limit_value = int(filter_value)
-                                query = query.limit(limit_value)
+                                
                                 logging.debug(f"Filtering limits: {filter_value}")
                 
                         try:
@@ -197,6 +197,7 @@ async def event_handler(websocket, path):
 
                             #results = db.query().all()
                             results = query.all()
+                            limit_int = query.limit(limit_value)
                             logging.debug("Entries: %s", {str(results)})
                             for row in result:
                                 print ("ID:", row.id, "Kind: ",row.kind, "Pubkey:",row.pubkey, "Since:",row.since)
