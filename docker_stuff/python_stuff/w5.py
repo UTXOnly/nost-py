@@ -3,6 +3,7 @@ import json
 import hmac
 import hashlib
 import logging
+import asyncio
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -100,4 +101,10 @@ async def event_handler(websocket, path):
     
 DATABASE_URL = os.environ.get("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
+
+if __name__ == "__main__":
+    asyncio.get_event_loop().run_until_complete(
+        websockets.serve(event_handler, "0.0.0.0", 8008)
+    )
+    asyncio.get_event_loop().run_forever()
 
