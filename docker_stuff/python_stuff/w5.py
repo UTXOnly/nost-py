@@ -15,7 +15,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
-Base.metadata.create_all(bind=engine)
+
 
 def calc_event_id(public_key:str, created_at:int, kind_number:int, tags:list, content:str) -> str:
     """
@@ -95,7 +95,7 @@ class Event(Base):
 #    for ws in connected_websockets:
 #        logging.debug("Sending event to connected websockets")
 #        ws.send(event.to_json())
-
+Base.metadata.create_all(bind=engine)
 connected_websockets = set()
 async def event_handler(websocket, path):
     connected_websockets.add(websocket)
@@ -130,8 +130,13 @@ async def event_handler(websocket, path):
                 #save_event(new_event_dict)
                 with SessionLocal() as db:
                     try:
+                        # check if the table already exists
+                        if not db.engine.dialect.has_table(db.connection(), 'event_table'):
+                        # create the table
+                        Event.__table__.create(db.bind)
+                        logging.debug("event_table created.")
                         event_dict = Event.to_dict(new_event)
-                        #db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)", event_dict)
+    
                         db.execute(text("INSERT INTO event_table (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
 
                         logging.debug("Inserted event into database: %s", event_dict)
