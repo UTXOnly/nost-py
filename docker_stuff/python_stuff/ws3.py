@@ -131,7 +131,7 @@ async def event_handler(websocket, path):
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
                 kind = event.get("kind")
-                tags = deserialize_tags(event.get("tags"))
+                tags = tuple(event.get("tags"))
                 content = event.get("content")
                 sig = event.get("sig")
 
