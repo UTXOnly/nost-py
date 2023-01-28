@@ -42,6 +42,9 @@ class Event:
             tags=[tag.serialize() for tag in self.tags],
             content=self.content,
         )
+    def __str__(self):
+        return f"Event(id={self.id}, pubkey={self.pubkey}, kind={self.kind}, created_at={self.created_at}, tags={self.tags}, content={self.content}, sig={self.sig})"
+    
     def get_tags_keys(self, tag_type: str):
         return set(tag.key for tag in self.tags if tag.type == tag_type)
     @property
@@ -86,6 +89,7 @@ async def event_handler(websocket, path):
             event_data = await websocket.recv()
             logging.debug(f"Received event: {event_data}")
             received_data = json.loads(event_data)
+            logging.debug(f"event_data is: {received_data}")
             #           # Verify the signature of the event
             ###secret_key = "your_secret_key"
             ###signature = received_data["sig"]
