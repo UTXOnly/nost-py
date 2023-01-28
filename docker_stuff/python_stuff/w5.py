@@ -126,7 +126,8 @@ async def event_handler(websocket, path):
             logging.exception(e)
             break
         finally:
-            connected_websockets.remove(websocket)
+            await websocket.close()
+            logging.debug("Websocket connection closed.")
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(
