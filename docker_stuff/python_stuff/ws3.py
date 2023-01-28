@@ -113,12 +113,9 @@ class Filter:
 Base.metadata.create_all(bind=engine)
 
 def deserialize_tags(tags):
-    for tag in tags:
-        tag_type = tag[0]
-        tag_value = tag[1]
-        tag_relay = tag[2]
-        deserialize_tag = ({"type": tag_type, "value": tag_value, "relay": tag_relay})
-        return [deserialize_tag]
+    deserialize_tag = tuple({"type": tag[0], "value": tag[1], "relay": tag[2]} for tag in tags)
+    return deserialize_tag
+
 
 connected_websockets = set()
 async def event_handler(websocket, path):
@@ -139,7 +136,7 @@ async def event_handler(websocket, path):
                 sig = event.get("sig")
 
                 new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
-                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at, tags,  content, sig)
+                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at, tags, content, sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
