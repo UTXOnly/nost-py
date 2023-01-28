@@ -25,7 +25,7 @@ def calc_event_id(public_key:str, created_at:int, kind_number:int, tags:list, co
     event_id = hashlib.sha256((str(public_key) + str(created_at) + str(kind_number) + str(tags) + str(content)).encode()).hexdigest()
     return event_id
 
-class Event:
+class Event(Base):
     __tablename__ = "event_table"
     id = Column(String, primary_key=True)
     pubkey = Column(String)
