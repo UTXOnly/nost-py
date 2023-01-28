@@ -36,7 +36,7 @@ class Event(Base):
     sig = Column(String)
     
 
-    def __init__(self, id, pubkey, kind, created_at, tags, content, sig):
+    def __init__(self, id, pubkey, kind, created_at, tags:str, content, sig):
         self.id = id
         self.pubkey = pubkey
         self.kind = kind
