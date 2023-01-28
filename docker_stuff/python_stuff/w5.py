@@ -15,6 +15,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+Base.metadata.create_all(bind=engine)
 
 def calc_event_id(public_key:str, created_at:int, kind_number:int, tags:list, content:str) -> str:
     """
