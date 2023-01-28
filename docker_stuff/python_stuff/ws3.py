@@ -188,13 +188,13 @@ async def event_handler(websocket, path):
                             #filter_value = filter_value if isinstance(filter_value, (list, tuple, set)) else [filter_value]
 
                             if filter_name == "ids":
-                                query = query.filter(Event.id.in_(filter_value))
+                                query = query.filter(str(Event.id.in_(filter_value)))
                                 logging.debug(f"Filtering events by id: {filter_value}")
                             elif filter_name == "kinds":
-                                query = query.filter(Event.kind.in_(filter_value))
+                                query = query.filter(str(Event.kind.in_(filter_value)))
                                 logging.debug(f"Filtering events by kind: {filter_value}")
                             elif filter_name == "authors":
-                                query = query.filter(Event.pubkey.in_(filter_value))
+                                query = query.filter(str(Event.pubkey.in_(filter_value)))
                                 logging.debug(f"Filtering events by authors: {filter_value}")
                             elif filter_name == "since":
                                 query = query.filter(Event.created_at >= filter_value)
