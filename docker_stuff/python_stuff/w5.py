@@ -11,6 +11,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast, Text
 
+DATABASE_URL = os.environ.get("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
 def calc_event_id(public_key:str, created_at:int, kind_number:int, tags:list, content:str) -> str:
     """
     This function calculates the event id using the provided information
@@ -117,9 +122,22 @@ async def event_handler(websocket, path):
                 sig = event.get("sig")
 
                 new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
-                new_event_dict = Event.to_dict(received_data)
+                
             # Save the event to the database
-                save_event(new_event_dict)
+                #save_event(new_event_dict)
+                with SessionLocal() as db:
+                    try:
+                        event_dict = Event.to_dict(new_event)
+                        #db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)", event_dict)
+                        db.execute(text("INSERT INTO event_table (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
+
+                        logging.debug("Inserted event into database: %s", event_dict)
+                        query = db.query(Event).filter_by(id=id)
+                        entered = query.first()
+                        logging.debug("Results of querying this entry from db: ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", entered.id, entered.pubkey, entered.kind, entered.created_at, entered.tags, entered.content, entered.sig)
+                    except Exception as e:
+                        logging.error("An error occurred while inserting event into database: %s", e)
+                        await websocket.send(json.dumps({"error": str(e)}))
             
             # Notify connected websockets of the new event
             #notify_connected_clients(received_data)
