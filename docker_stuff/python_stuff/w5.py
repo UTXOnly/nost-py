@@ -127,3 +127,9 @@ async def event_handler(websocket, path):
             break
         finally:
             connected_websockets.remove(websocket)
+
+if __name__ == "__main__":
+    asyncio.get_event_loop().run_until_complete(
+        websockets.serve(event_handler, "0.0.0.0", 8008)
+    )
+    asyncio.get_event_loop().run_forever()
