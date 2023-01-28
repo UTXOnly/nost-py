@@ -160,12 +160,6 @@ async def event_handler(websocket, path):
                         #db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)", event_dict)
                         db.execute(text("INSERT INTO event_table (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
 
-#                        logging.debug("Inserted event into database: %s", event_dict)
-#                        query = db.query(Event)
-#                        entered = query.all()
-                        #for event in entered:
-                        #    print(event.id, event.pubkey, event.kind, event.created_at, event.tags, event.content, event.sig)
-                        #logging.debug("Results of querying this entry from db: ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", event.id, event.pubkey, event.kind, event.created_at, event.tags, event.content, event.sig)
                         logging.debug("Inserted event into database: %s", event_dict)
                         query = db.query(Event).filter_by(id=id)
                         entered = query.first()
@@ -215,6 +209,9 @@ async def event_handler(websocket, path):
                 
                         try:
                             logging.debug(f"Query: {str(query)}")
+                            t = text("SELECT * FROM event_table")
+                            result = db.execute(t)
+                            logging.debug("Entries: %s", {str(result)})
 
                             #results = db.query().all()
                             results = query.all()
