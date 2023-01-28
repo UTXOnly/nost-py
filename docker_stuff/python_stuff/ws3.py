@@ -69,7 +69,7 @@ class TagFilter:
             return query.filter(Event.p_tags.contains(tags))
 
 
-tag_filter = TagFilter()
+#tag_filter = TagFilter()
 
 class Filter:
     def __init__(
