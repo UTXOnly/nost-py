@@ -4,6 +4,7 @@ import hmac
 import hashlib
 import logging
 import asyncio
+import websockets
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
