@@ -219,9 +219,11 @@ async def event_handler(websocket, path):
                             #results = db.query().all()
                             results = query.all()
                             logging.debug("Entries: %s", {str(results)})
-                            for item in results:
-                                logging.debug("ITEM: %s", {item})
-                                logging.debug("ITEM: %s", {str(item)})
+                            #for item in results:
+                            #    logging.debug("ITEM: %s", {item})
+                            #    logging.debug("ITEM: %s", {str(item)})
+                            logging.debug("Results of querying the database: {}".format([{'id': r.id, 'pubkey': r.pubkey, 'kind': r.kind, 'created_at': r.created_at, 'tags': r.tags, 'content': r.content, 'sig': r.sig} for r in results]))
+
     
                             #
                             #print(results)
