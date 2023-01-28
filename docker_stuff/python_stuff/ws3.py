@@ -131,7 +131,7 @@ async def event_handler(websocket, path):
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
                 kind = event.get("kind")
-                tags = tuple(event.get("tags"))
+                tags = event.get("tags")
                 content = event.get("content")
                 sig = event.get("sig")
 
@@ -189,8 +189,8 @@ async def event_handler(websocket, path):
                             logging.debug(f"Query: {str(query)}")
                             t = text("SELECT * FROM event_table")
                             result = db.execute(t).fetchall()
-                            for row in result:
-                                print(row.column1, row.column2, row.column3)
+                            #for row in result:
+                            #    print(row.column1, row.column2, row.column3)
                             logging.debug("Entries: %s", result)
                             logging.debug("Entries_plain: %s", {result})
                             logging.debug("Entries_text: %s", {text(result)})
@@ -207,15 +207,15 @@ async def event_handler(websocket, path):
                             #
                             #print(results)
                             logging.debug(f"Query {results}")
-                            results_json = [Event.to_dict(r) for r in results]
-                            logging.debug(f"Received event JSON: {results_json}")
+                            #results_json = [Event.to_dict(r) for r in results]
+                            #logging.debug(f"Received event JSON: {results_json}")
                             logging.debug("String test: %s", {str(results)})
                             logging.debug("JSON test: {}".format(json.dumps(results)))
 
                                 #response = json.dumps(results)
                             #response = results
-                            await websocket.send(results_json)
-                            logging.debug("Response JSON: ".format(results_json))
+                            await websocket.send(results)
+                            logging.debug("Response JSON: ".format(results))
                             
                             logging.debug("Successfully sent events to the client.")
                         except Exception as e:
