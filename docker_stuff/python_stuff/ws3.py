@@ -193,14 +193,16 @@ async def event_handler(websocket, path):
                             #    print(row.column1, row.column2, row.column3)
                             logging.debug("Entries: %s", result)
                             logging.debug("Entries_plain: %s", {result})
-                           
+                            for row in result:
+                                logging.debug("Unfiltered ID: %s Kind: %s Pubkey: %s Since: %s", row.id, row.kind, row.pubkey, row.since)
 
                             #results = db.query().all()
                             results = query.all()
                             limit_int = query.limit(limit_value)
                             logging.debug("Entries: %s", {str(results)})
-                            for row in result:
-                                print ("ID:", row.id, "Kind: ",row.kind, "Pubkey:",row.pubkey, "Since:",row.since)
+                            for row in results:
+                                logging.debug("ID: %s Kind: %s Pubkey: %s Since: %s", row.id, row.kind, row.pubkey, row.since)
+
                             #for item in results:
                             #    logging.debug("ITEM: %s", {item})
                             #    logging.debug("ITEM: %s", {str(item)})
