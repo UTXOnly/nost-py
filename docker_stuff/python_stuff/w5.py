@@ -33,7 +33,8 @@ class Event:
     tags = Column(Text)
     content = Column(String)
     sig = Column(String)
-    def __init__(self, pubkey:str, created_at:int, kind:list[int], tags:list, content:str):
+    def __init__(self,id:str, pubkey:str, created_at:int, kind:list[int], tags:list, content:str):
+        self.id = id
         self.pubkey = pubkey
         self.created_at = created_at
         self.kind = kind
