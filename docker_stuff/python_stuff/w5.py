@@ -70,17 +70,22 @@ class Event:
             "sig": event.sig
         }
 
+
 def save_event(received_data: dict):
     event = Event.to_dict(received_data)
     event = received_data
     session = Session()
+    logging.debug("Adding event to session")
     session.add(event)
+    logging.debug("Committing event to session")
     session.commit()
+    logging.debug("Closing session")
     session.close()
 
 def notify_connected_clients(received_data: dict):
     event = Event.from_dict(received_data)
     for ws in connected_websockets:
+        logging.debug("Sending event to connected websockets")
         ws.send(event.to_json())
 connected_websockets = set()
 async def event_handler(websocket, path):
@@ -96,14 +101,12 @@ async def event_handler(websocket, path):
             ###signature = received_data["sig"]
             ###del received_data["sig"]
             ##message = json.dumps(received_data)
-            ##computed_signature = hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).hexdigest()
+            ##commented_signature = hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).hexdigest()
             #if not hmac.compare_digest(computed_signature, signature):
             #    raise ValueError("Invalid signature")
             
-
-
-            if event_data[0] == "EVENT":
-                event = event_data[1]
+            if received_data[0] == "EVENT":
+                event = received_data[1]
                 id = event.get("id")
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
@@ -112,23 +115,15 @@ async def event_handler(websocket, path):
                 content = event.get("content")
                 sig = event.get("sig")
 
+                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
+
             # Save the event to the database
-            save_event(received_data)
+            save_event(new_event)
             
             # Notify connected websockets of the new event
-            notify_connected_clients(received_data)
+            #notify_connected_clients(received_data)
         except Exception as e:
             logging.exception(e)
             break
         finally:
             connected_websockets.remove(websocket)
-    
-DATABASE_URL = os.environ.get("DATABASE_URL")
-engine = create_engine(DATABASE_URL)
-
-if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(
-        websockets.serve(event_handler, "0.0.0.0", 8008)
-    )
-    asyncio.get_event_loop().run_forever()
-
