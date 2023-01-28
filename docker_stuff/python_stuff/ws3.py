@@ -212,6 +212,8 @@ async def event_handler(websocket, path):
                             t = text("SELECT * FROM event_table")
                             result = db.execute(t)
                             logging.debug("Entries: %s", {str(result)})
+                            logging.debug("Entries_plain: %s", {result})
+                            logging.debug("Entries_text: %s", {text(result)})
 
                             #results = db.query().all()
                             results = query.all()
