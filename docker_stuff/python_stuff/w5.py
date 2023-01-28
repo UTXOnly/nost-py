@@ -72,18 +72,14 @@ async def event_handler(websocket, path):
             received_data = json.loads(event_data)
                        # Verify the signature of the event
             secret_key = "your_secret_key"
-            signature = received_data["signature"]
-            del received_data["signature"]
+            signature = received_data["sig"]
+            del received_data["sig"]
             message = json.dumps(received_data)
             computed_signature = hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).hexdigest()
             if not hmac.compare_digest(computed_signature, signature):
                 raise ValueError("Invalid signature")
             
-            # Save the event to the database
-            save_event(received_data)
-            
-            # Notify connected websockets of the new event
-            notify_connected_clients(received_data)
+
 
             if event_data[0] == "EVENT":
                 event = event_data[1]
@@ -94,6 +90,12 @@ async def event_handler(websocket, path):
                 tags = event.get("tags")
                 content = event.get("content")
                 sig = event.get("sig")
+
+            # Save the event to the database
+            save_event(received_data)
+            
+            # Notify connected websockets of the new event
+            notify_connected_clients(received_data)
         except Exception as e:
             logging.exception(e)
             break
