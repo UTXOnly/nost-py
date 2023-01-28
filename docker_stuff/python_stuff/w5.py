@@ -79,14 +79,15 @@ def save_event(received_data: dict):
     session.add(event)
     logging.debug("Committing event to session")
     session.commit()
-    logging.debug("Closing session")
-    session.close()
+    #logging.debug("Closing session")
+    #session.close()
 
 def notify_connected_clients(received_data: dict):
     event = Event.from_dict(received_data)
     for ws in connected_websockets:
         logging.debug("Sending event to connected websockets")
         ws.send(event.to_json())
+
 connected_websockets = set()
 async def event_handler(websocket, path):
     connected_websockets.add(websocket)
