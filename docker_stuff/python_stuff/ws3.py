@@ -12,11 +12,7 @@ from sqlalchemy.orm import sessionmaker, Query, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import array
 from psycopg2.extras import Json
-
-
-
 import logging
-import json
 from typing import List
 
 
@@ -49,9 +45,6 @@ class Event(Base):
         self.content = content
         self.sig = sig
 
-    @staticmethod
-    def from_dict(event_dict):
-        return Event(**event_dict)
 
     @staticmethod
     def to_dict(event):
@@ -118,8 +111,7 @@ class Filter:
 
 
 Base.metadata.create_all(bind=engine)
-#Session = sessionmaker(bind=engine)
-#session = Session()
+
 def deserialize_tags(tags):
     for tag in tags:
         tag_type = tag[0]
@@ -146,18 +138,11 @@ async def event_handler(websocket, path):
                 content = event.get("content")
                 sig = event.get("sig")
 
-                 #Deserialize tags
-                #deserialized_tags = []
-                
-                        #deserialized_tags.append({"type": tag_type, "value": tag_value, "relay": tag_relay})
-                #my_array = array(deserialized_tags)
-
                 new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
                 logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at, tags,  content, sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
-                        #db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)", event_dict)
                         db.execute(text("INSERT INTO event_table (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
 
                         logging.debug("Inserted event into database: %s", event_dict)
@@ -165,8 +150,6 @@ async def event_handler(websocket, path):
                         entered = query.first()
                         logging.debug("Results of querying this entry from db: ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", entered.id, entered.pubkey, entered.kind, entered.created_at, entered.tags, entered.content, entered.sig)
     
-
-                        #logging.debug("Results of querying this entry from db: %s", str(entered))
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
                         await websocket.send(json.dumps({"error": str(e)}))
@@ -178,8 +161,6 @@ async def event_handler(websocket, path):
                         query = db.query(Event)
                         for filter_name, filter_value in filters.items():
                             logging.debug("For loop filters are: {}: {}".format(filter_name, filter_value))
-
-                            #filter_value = filter_value if isinstance(filter_value, (list, tuple, set)) else [filter_value]
 
                             if filter_name == "ids":
                                 query = query.filter(Event.id.in_(filter_value))
