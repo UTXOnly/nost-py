@@ -133,16 +133,16 @@ async def event_handler(websocket, path):
                         # check if the table already exists
                         if not db.engine.dialect.has_table(db.connection(), 'event_table'):
                         # create the table
-                        Event.__table__.create(db.bind)
-                        logging.debug("event_table created.")
-                        event_dict = Event.to_dict(new_event)
+                            Event.__table__.create(db.bind)
+                            logging.debug("event_table created.")
+                            event_dict = Event.to_dict(new_event)
+        
+                            db.execute(text("INSERT INTO event_table (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
     
-                        db.execute(text("INSERT INTO event_table (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
-
-                        logging.debug("Inserted event into database: %s", event_dict)
-                        query = db.query(Event).filter_by(id=id)
-                        entered = query.first()
-                        logging.debug("Results of querying this entry from db: ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", entered.id, entered.pubkey, entered.kind, entered.created_at, entered.tags, entered.content, entered.sig)
+                            logging.debug("Inserted event into database: %s", event_dict)
+                            query = db.query(Event).filter_by(id=id)
+                            entered = query.first()
+                            logging.debug("Results of querying this entry from db: ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", entered.id, entered.pubkey, entered.kind, entered.created_at, entered.tags, entered.content, entered.sig)
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
                         await websocket.send(json.dumps({"error": str(e)}))
