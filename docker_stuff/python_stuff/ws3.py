@@ -158,7 +158,7 @@ async def event_handler(websocket, path):
                     try:
                         event_dict = Event.to_dict(new_event)
                         #db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)", event_dict)
-                        db.execute(text("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
+                        db.execute(text("INSERT INTO event_table (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
 
 #                        logging.debug("Inserted event into database: %s", event_dict)
 #                        query = db.query(Event)
