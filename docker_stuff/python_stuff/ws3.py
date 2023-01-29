@@ -117,12 +117,12 @@ async def event_handler(websocket, path):
                             elif filter_name == "authors":
                                 query = query.filter(Event.pubkey.in_(filter_value))
                                 logging.debug(f"Filtering events by authors: {filter_value}")
-                            elif filter_name == "since":
-                                query = query.filter(Event.created_at >= filter_value)
-                                logging.debug(f"Filtering events created since: {filter_value}")
-                            elif filter_name == "until":
-                                query = query.filter(Event.created_at <= filter_value)
-                                logging.debug(f"Filtering events created until: {filter_value}")
+                            #elif filter_name == "since":
+                            #    query = query.filter(Event.created_at >= filter_value)
+                            #    logging.debug(f"Filtering events created since: {filter_value}")
+                            #elif filter_name == "until":
+                            #    query = query.filter(Event.created_at <= filter_value)
+                            #    logging.debug(f"Filtering events created until: {filter_value}")
                             #elif filter_name == "#e":
                             #    query = query.filter(Event.__table__.columns.tags.contains(filter_value))
                             #    logging.debug(f"Filtering events e tags: {filter_value}")
