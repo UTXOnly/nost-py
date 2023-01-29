@@ -33,8 +33,8 @@ services:
       ## GLOBALS
     - DD_API_KEY=${DD_API_KEY}
     - DD_SITE=datadoghq.com
-    - DD_HOSTNAME="nost.py_test_env"
-    - DD_TAGS=env:sandbox owner:brian service:relay
+    - DD_HOSTNAME=nostpy
+    - DD_TAGS=env:nostr owner:brian service:relay
     - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
     - DD_DOCKER_LABELS_AS_TAGS=true
     - DD_DOCKER_ENV_AS_TAGS=true
@@ -42,6 +42,7 @@ services:
     - DD_PROCESS_AGENT_ENABLED=true
     - DD_APM_NON_LOCAL_TRAFFIC-true
     - DD_LOGS_ENABLED=true
+    - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
     ports:
       - 8126:8126
       - 8125:8125

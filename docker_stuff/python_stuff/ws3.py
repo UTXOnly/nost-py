@@ -5,7 +5,7 @@ import websockets
 import hmac
 import hashlib
 from time import time
-#from ddtrace import tracer
+from ddtrace import tracer
 from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast, Text 
 from sqlalchemy.exc import IntegrityError 
 from sqlalchemy.orm import sessionmaker, Query, sessionmaker
@@ -14,6 +14,10 @@ from sqlalchemy.dialects.postgresql import array, JSONB
 from psycopg2.extras import Json
 import logging
 from typing import List
+
+from ddtrace import tracer
+
+tracer.configure(hostname='172.20.0.4', port=8126)
 
 
 logging.basicConfig(level=logging.DEBUG)
