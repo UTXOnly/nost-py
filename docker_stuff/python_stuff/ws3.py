@@ -57,58 +57,8 @@ class Event(Base):
             "content": event.content,
             "sig": event.sig
         }
-class TagFilter:
-    def apply(self, query: Query, tags: List[str], tag_type: str) -> Query:
-        if not tags:
-            return query
-        if tag_type == "#e":
-            return query.filter(Event.e_tags.contains(tags))
-
-
-        elif tag_type == "#p":
-            return query.filter(Event.p_tags.contains(tags))
-
 
 #tag_filter = TagFilter()
-
-class Filter:
-    def __init__(
-            self, 
-            ids: "list[str]"=None, 
-            kinds: "list[int]"=None, 
-            authors: "list[str]"=None, 
-            since: int=None, 
-            until: int=None, 
-            tags: "dict[str, list[str]]"=None,
-            limit: int=None) -> None:
-        self.ids = ids
-        self.kinds = kinds
-        self.authors = authors
-        self.since = since
-        self.until = until
-        self.tags = tags
-        self.limit = limit
-
-    def apply(self, query: Query) -> Query:
-        if self.ids:
-            query = query.filter(Event.id.in_(self.ids))
-        if self.kinds:
-            query = query.filter(Event.kind.in_(self.kinds))
-        if self.authors:
-            query = query.filter(Event.pubkey.in_(self.authors))
-        if self.since:
-            query = query.filter(Event.created_at >= self.since)
-        if self.until:
-            query = query.filter(Event.created_at <= self.until)
-        if self.limit:
-            query = query.limit(self.limit)
-        if self.tags:
-            query = tag_filter.apply(query, self.tags.get("#e", []), "#e")
-        if self.tags:
-            query = tag_filter.apply(query, self.tags.get("#p", []), "#p")
-        logging.debug(query)
-        return query
-
 
 Base.metadata.create_all(bind=engine)
 
@@ -140,9 +90,8 @@ async def event_handler(websocket, path):
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
-                        db.execute(text("INSERT INTO event_table (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)"), event_dict)
-
-                        logging.debug("Inserted event into database: %s", event_dict)
+                        db.add(new_event)
+                        db.commit()
                         query = db.query(Event).filter_by(id=id)
                         entered = query.first()
                         logging.debug("Results of querying this entry from db: ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", entered.id, entered.pubkey, entered.kind, entered.created_at, entered.tags, entered.content, entered.sig)
@@ -203,14 +152,8 @@ async def event_handler(websocket, path):
                             for row in results:
                                 logging.debug("ID: %s Kind: %s Pubkey: %s Since: %s", row.id, row.kind, row.pubkey, row.since)
 
-                            #for item in results:
-                            #    logging.debug("ITEM: %s", {item})
-                            #    logging.debug("ITEM: %s", {str(item)})
                             logging.debug("Results of querying the database: {}".format([{'id': r.id, 'pubkey': r.pubkey, 'kind': r.kind, 'created_at': r.created_at, 'tags': r.tags, 'content': r.content, 'sig': r.sig} for r in results]))
 
-    
-                            #
-                            #print(results)
                             logging.debug(f"Query {results}")
                             #results_json = [Event.to_dict(r) for r in results]
                             #logging.debug(f"Received event JSON: {results_json}")
@@ -230,7 +173,6 @@ async def event_handler(websocket, path):
         finally:
             #await websocket.close()
             logging.debug("Websocket connection closed.")
-
 
 
 if __name__ == "__main__":
