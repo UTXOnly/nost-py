@@ -116,7 +116,7 @@ async def event_handler(websocket, path):
                         if filter_name == "ids":
                             query = query.filter(Event.id.in_(filter_value))
                         elif filter_name == "kinds":
-                            query = query.filter(Event.kind.in_(filter_value))
+                            query = query.filter(Event.tags.op("@>")(filter_value))
                         elif filter_name == "authors":
                             query = query.filter(Event.pubkey.in_(filter_value))
                         #elif filter_name == "since":
@@ -124,9 +124,9 @@ async def event_handler(websocket, path):
                         #elif filter_name == "until":
                         #    query = query.filter(Event.created_at <= filter_value)
                         elif filter_name == "#e":
-                            query = query.filter(Event.tags.contains(filter_value))
+                            query = query.filter(Event.tags.op("@>")(filter_value))
                         elif filter_name == "#p":
-                            query = query.filter(Event.tags.contains(filter_value))
+                            query = query.filter(Event.tags.op("@>")(filter_value))
                         elif filter_name == "limit":
                             limit_value = int(filter_value)
                             #query = query.limit(limit_value)
