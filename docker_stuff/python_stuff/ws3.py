@@ -106,6 +106,11 @@ async def event_handler(websocket, path):
             elif message[0] == "REQ":
                 subscription_id = message[1]
                 filters = message[2]
+                created_at = filters.get("created_at")
+                kind = filters.get("kind")
+                tags = filters.get("tags")
+                
+                
                 with SessionLocal() as db:
                     query = db.query(Event)
                     for filter_name, filter_value in filters.items():
