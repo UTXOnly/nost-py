@@ -139,7 +139,8 @@ async def event_handler(websocket, path):
                         response = json.dumps([event.to_dict(event) for event in events], cls=EventEncoder)
                         logging.debug("Converted events to json: %s", response)
                         
-    
+                        await websocket.send(json.dumps({"type": "cors", "origin": "*"}))
+
                         await websocket.send(response)
                         
                         logging.debug("Successfully sent events to the client.")
@@ -149,7 +150,7 @@ async def event_handler(websocket, path):
 
         finally:
             #await websocket.close()
-            logging.debug("Websocket connection closed.")
+            logging.debug("Finally block placeholder")
 
 
 if __name__ == "__main__":
