@@ -162,7 +162,7 @@ async def event_handler(websocket, path):
 
                                 #response = json.dumps(results)
                             #response = results
-                            await websocket.send(results)
+                            await websocket.send(json.dumps(results))
                             logging.debug("Response JSON: ".format(results))
                             
                             logging.debug("Successfully sent events to the client.")
