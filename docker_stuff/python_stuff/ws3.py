@@ -6,11 +6,11 @@ import hmac
 import hashlib
 from time import time
 #from ddtrace import tracer
-from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast, Text
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast, Text 
+from sqlalchemy.exc import IntegrityError 
 from sqlalchemy.orm import sessionmaker, Query, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import array
+from sqlalchemy.dialects.postgresql import array, JSONB
 from psycopg2.extras import Json
 import logging
 from typing import List
@@ -29,9 +29,9 @@ class Event(Base):
 
     id = Column(String, primary_key=True)
     pubkey = Column(String)
-    kind = Column(Integer)
+    kind = Column(JSONB)
     created_at = Column(Integer)
-    tags = Column(Text)
+    tags = Column(JSONB)
     content = Column(String)
     sig = Column(String)
     
