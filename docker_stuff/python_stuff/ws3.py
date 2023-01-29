@@ -128,7 +128,7 @@ async def event_handler(websocket, path):
                             query = query.limit(limit_value)
                     events = query.all()
                     #response = json.dumps([event.to_dict() for event in events])
-                    response = json.dumps([event.to_dict() for event in events], cls=EventEncoder)
+                    response = json.dumps([event.to_dict(event) for event in events], cls=EventEncoder)
 
                     await websocket.send(response)
 
