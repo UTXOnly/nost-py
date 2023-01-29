@@ -98,76 +98,63 @@ async def event_handler(websocket, path):
     
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
-                        await websocket.send(json.dumps({"error": str(e)}))
             elif message[0] == "REQ":
                 subscription_id = message[1]
                 filters = message[2]
-                logging.debug(f"Filters are:{filters}")
                 with SessionLocal() as db:
-                        query = db.query(Event)
-                        for filter_name, filter_value in filters.items():
-                            logging.debug("For loop filters are: {}: {}".format(filter_name, filter_value))
+                    query = db.query(Event)
+                    for filter_name, filter_value in filters.items():
+                        if filter_name == "ids":
+                            query = query.filter(Event.id.in_(filter_value))
+                        elif filter_name == "kinds":
+                            query = query.filter(Event.kind.in_(filter_value))
+                        elif filter_name == "authors":
+                            query = query.filter(Event.pubkey.in_(filter_value))
+                        elif filter_name == "since":
+                            query = query.filter(Event.created_at >= filter_value)
+                        elif filter_name == "until":
+                            query = query.filter(Event.created_at <= filter_value)
+                        elif filter_name == "#e":
+                            query = query.filter(Event.tags.contains(filter_value))
+                        elif filter_name == "#p":
+                            query = query.filter(Event.tags.contains(filter_value))
+                        elif filter_name == "limit":
+                            limit_value = int(filter_value)
+                            query = query.limit(limit_value)
+                    events = query.all()
+                    response = json.dumps([event.to_dict() for event in events])
+                    await websocket.send(response)
 
-                            if filter_name == "ids":
-                                query = query.filter(Event.id.in_(filter_value))
-                                logging.debug(f"Filtering events by id: {filter_value}")
-                            elif filter_name == "kinds":
-                                query = query.filter(Event.kind.in_(filter_value))
-                                logging.debug(f"Filtering events by kind: {filter_value}")
-                            elif filter_name == "authors":
-                                query = query.filter(Event.pubkey.in_(filter_value))
-                                logging.debug(f"Filtering events by authors: {filter_value}")
-                            #elif filter_name == "since":
-                            #    query = query.filter(Event.created_at >= filter_value)
-                            #    logging.debug(f"Filtering events created since: {filter_value}")
-                            #elif filter_name == "until":
-                            #    query = query.filter(Event.created_at <= filter_value)
-                            #    logging.debug(f"Filtering events created until: {filter_value}")
-                            #elif filter_name == "#e":
-                            #    query = query.filter(Event.__table__.columns.tags.contains(filter_value))
-                            #    logging.debug(f"Filtering events e tags: {filter_value}")
-                            #elif filter_name == "#p":
-                            #    query = query.filter(Event.__table__.columns.tags.contains(filter_value))                               
-                            #    logging.debug(f"Filtering events p tags: {filter_value}")                          
-                            elif filter_name == "limit":
-                                limit_value = int(filter_value)
-                                
-                                logging.debug(f"Filtering limits: {filter_value}")
-                
-                        try:
-                            logging.debug(f"Query: {str(query)}")
-                            t = text("SELECT * FROM event_table")
-                            result = db.execute(t)
-                            #for row in result:
-                            #    print(row.column1, row.column2, row.column3)
-                            logging.debug("Entries: %s", result)
-                            logging.debug("Entries_plain: %s", {result})
-                            for row in result:
-                                logging.debug("Unfiltered ID: %s Kind: %s Pubkey: %s Since: %s", row.id, row.kind, row.pubkey, row.since)
-
-                            #results = db.query().all()
-                            results = query.all()
-                            limit_int = query.limit(limit_value)
-                            logging.debug("Entries: %s", {str(results)})
-                            for row in results:
-                                logging.debug("ID: %s Kind: %s Pubkey: %s Since: %s", row.id, row.kind, row.pubkey, row.since)
-
-                            logging.debug("Results of querying the database: {}".format([{'id': r.id, 'pubkey': r.pubkey, 'kind': r.kind, 'created_at': r.created_at, 'tags': r.tags, 'content': r.content, 'sig': r.sig} for r in results]))
-
-                            logging.debug(f"Query {results}")
-                            #results_json = [Event.to_dict(r) for r in results]
-                            #logging.debug(f"Received event JSON: {results_json}")
-                            logging.debug("String test: %s", {str(results)})
-                            logging.debug("JSON test: {}".format(json.dumps(results)))
-
-                                #response = json.dumps(results)
-                            #response = results
-                            await websocket.send(json.dumps(results))
-                            logging.debug("Response JSON: ".format(results))
-                            
-                            logging.debug("Successfully sent events to the client.")
-                        except Exception as e:
-                            logging.error("An error occurred while querying events: %s", e)
+                    try:
+                        logging.debug(f"Query: {str(query)}")
+                        t = text("SELECT * FROM event_table")
+                        result = db.execute(t)
+                        #for row in result:
+                        #    print(row.column1, row.column2, row.column3)
+                        logging.debug("Entries: %s", result)
+                        logging.debug("Entries_plain: %s", {result})
+                        for row in result:
+                            logging.debug("Unfiltered ID: %s Kind: %s Pubkey: %s Since: %s", row.id, row.kind, row.pubkey, row.since)
+                        #results = db.query().all()
+                        results = query.all()
+                        limit_int = query.limit(limit_value)
+                        logging.debug("Entries: %s", {str(results)})
+                        for row in results:
+                            logging.debug("ID: %s Kind: %s Pubkey: %s Since: %s", row.id, row.kind, row.pubkey, row.since)
+                        logging.debug("Results of querying the database: {}".format([{'id': r.id, 'pubkey': r.pubkey, 'kind': r.kind, 'created_at': r.created_at, 'tags': r.tags, 'content': r.content, 'sig': r.sig} for r in results]))
+                        logging.debug(f"Query {results}")
+                        #results_json = [Event.to_dict(r) for r in results]
+                        #logging.debug(f"Received event JSON: {results_json}")
+                        logging.debug("String test: %s", {str(results)})
+                        logging.debug("JSON test: {}".format(json.dumps(results)))
+                            #response = json.dumps(results)
+                        #response = results
+                        await websocket.send(json.dumps(results))
+                        logging.debug("Response JSON: ".format(results))
+                        
+                        logging.debug("Successfully sent events to the client.")
+                    except Exception as e:
+                        logging.error("An error occurred while querying events: %s", e)
             
 
         finally:
