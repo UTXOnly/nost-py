@@ -28,7 +28,7 @@ services:
 
 
   postgres:
-    image: postgres:latest
+    image: dhis2/postgres-contrib:latest
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
