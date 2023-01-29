@@ -106,8 +106,7 @@ async def event_handler(websocket, path):
             elif message[0] == "REQ":
                 subscription_id = message[1]
                 filters = message[2]
-                created_at = filters.get("created_at")
-                kind = filters.get("kind")
+                kinds = filters.get("kinds")
                 tags = filters.get("tags")
                 
                 
@@ -124,10 +123,10 @@ async def event_handler(websocket, path):
                         #    query = query.filter(Event.created_at >= filter_value)
                         #elif filter_name == "until":
                         #    query = query.filter(Event.created_at <= filter_value)
-                        #elif filter_name == "#e":
-                        #    query = query.filter(Event.tags.contains(filter_value))
-                        #elif filter_name == "#p":
-                        #    query = query.filter(Event.tags.contains(filter_value))
+                        elif filter_name == "#e":
+                            query = query.filter(Event.tags.contains(filter_value))
+                        elif filter_name == "#p":
+                            query = query.filter(Event.tags.contains(filter_value))
                         elif filter_name == "limit":
                             limit_value = int(filter_value)
                             #query = query.limit(limit_value)
@@ -138,6 +137,7 @@ async def event_handler(websocket, path):
                         #response = json.dumps([event.to_dict() for event in events])
                         limit_int = query.limit(limit_value)
                         response = json.dumps([event.to_dict(event) for event in events], cls=EventEncoder)
+                        logging.debug("Converted events to json: %s", response)
                         
     
                         await websocket.send(response)
