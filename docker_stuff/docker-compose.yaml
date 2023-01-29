@@ -37,7 +37,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - pgdata:/var/lib/postgresql/data-old
+      - ${PWD}/pgdata:/var/lib/postgresql/data-old
       - ${PWD}/.nostr/data:/var/lib/postgresql/data
       - ${PWD}/.nostr/db-logs:/var/log/postgresql
       - ${PWD}/postgresql.conf:/postgresql.conf
