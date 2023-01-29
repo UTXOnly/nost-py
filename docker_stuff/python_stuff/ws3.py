@@ -59,6 +59,11 @@ class Event(Base):
         }
 
 #tag_filter = TagFilter()
+class EventEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Event):
+            return obj.to_dict()
+        return json.JSONEncoder.default(self, obj)
 
 Base.metadata.create_all(bind=engine)
 
@@ -122,7 +127,9 @@ async def event_handler(websocket, path):
                             limit_value = int(filter_value)
                             query = query.limit(limit_value)
                     events = query.all()
-                    response = json.dumps([event.to_dict() for event in events])
+                    #response = json.dumps([event.to_dict() for event in events])
+                    response = json.dumps([event.to_dict() for event in events], cls=EventEncoder)
+
                     await websocket.send(response)
 
                     try:
