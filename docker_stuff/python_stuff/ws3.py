@@ -115,10 +115,10 @@ async def event_handler(websocket, path):
                             query = query.filter(Event.kind.in_(filter_value))
                         elif filter_name == "authors":
                             query = query.filter(Event.pubkey.in_(filter_value))
-                        elif filter_name == "since":
-                            query = query.filter(Event.created_at >= filter_value)
-                        elif filter_name == "until":
-                            query = query.filter(Event.created_at <= filter_value)
+                        #elif filter_name == "since":
+                        #    query = query.filter(Event.created_at >= filter_value)
+                        #elif filter_name == "until":
+                        #    query = query.filter(Event.created_at <= filter_value)
                         #elif filter_name == "#e":
                         #    query = query.filter(Event.tags.contains(filter_value))
                         #elif filter_name == "#p":
@@ -126,38 +126,16 @@ async def event_handler(websocket, path):
                         elif filter_name == "limit":
                             limit_value = int(filter_value)
                             #query = query.limit(limit_value)
-                    events = query.all()
-                    #response = json.dumps([event.to_dict() for event in events])
-                    response = json.dumps([event.to_dict(event) for event in events], cls=EventEncoder)
-
-                    await websocket.send(response)
+                    
 
                     try:
-                        logging.debug(f"Query: {str(query)}")
-                        t = text("SELECT * FROM event_table")
-                        result = db.execute(t)
-                        #for row in result:
-                        #    print(row.column1, row.column2, row.column3)
-                        logging.debug("Entries: %s", result)
-                        logging.debug("Entries_plain: %s", {result})
-                        for row in result:
-                            logging.debug("Unfiltered ID: %s Kind: %s Pubkey: %s Since: %s", row.id, row.kind, row.pubkey, row.since)
-                        #results = db.query().all()
-                        results = query.all()
+                        events = query.all()
+                        #response = json.dumps([event.to_dict() for event in events])
                         limit_int = query.limit(limit_value)
-                        logging.debug("Entries: %s", {str(results)})
-                        for row in results:
-                            logging.debug("ID: %s Kind: %s Pubkey: %s Since: %s", row.id, row.kind, row.pubkey, row.since)
-                        logging.debug("Results of querying the database: {}".format([{'id': r.id, 'pubkey': r.pubkey, 'kind': r.kind, 'created_at': r.created_at, 'tags': r.tags, 'content': r.content, 'sig': r.sig} for r in results]))
-                        logging.debug(f"Query {results}")
-                        #results_json = [Event.to_dict(r) for r in results]
-                        #logging.debug(f"Received event JSON: {results_json}")
-                        logging.debug("String test: %s", {str(results)})
-                        logging.debug("JSON test: {}".format(json.dumps(results)))
-                            #response = json.dumps(results)
-                        #response = results
-                        await websocket.send(json.dumps(results))
-                        logging.debug("Response JSON: ".format(results))
+                        response = json.dumps([event.to_dict(event) for event in events], cls=EventEncoder)
+                        
+    
+                        await websocket.send(response)
                         
                         logging.debug("Successfully sent events to the client.")
                     except Exception as e:
