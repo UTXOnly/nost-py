@@ -116,7 +116,7 @@ async def event_handler(websocket, path):
                         if filter_name == "ids":
                             query = query.filter(Event.id.in_(filter_value))
                         elif filter_name == "kinds":
-                            query = query.filter(Event.kind.in_(filter_value))
+                            query = query.filter("{",Event.kind.in_(filter_value),"}")
                         elif filter_name == "authors":
                             query = query.filter(Event.pubkey.in_(filter_value))
                         #elif filter_name == "since":
