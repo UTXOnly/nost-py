@@ -36,12 +36,12 @@ services:
       #- POSTGRES_INITDB_ARGS=--extension=jsonb_ops
     ports:
       - 5432:5432
-    volumes:
-     # - ${PWD}/pgdata:/var/lib/postgresql/data-old
-     # - ${PWD}/data:/var/lib/postgresql/data
-     # - ${PWD}/db-logs:/var/log/postgresql
-      - ${PWD}/postgresql.conf:/postgresql.conf
-    command: postgres -c 'config_file=/postgresql.conf'
+    #volumes:
+    # # - ${PWD}/pgdata:/var/lib/postgresql/data-old
+    # # - ${PWD}/data:/var/lib/postgresql/data
+    # # - ${PWD}/db-logs:/var/log/postgresql
+    #  - ${PWD}/postgresql.conf:/postgresql.conf
+    #command: postgres -c 'config_file=/postgresql.conf'
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nostr"] # database username here - nostr, should be changed if other user
       interval: 10s
