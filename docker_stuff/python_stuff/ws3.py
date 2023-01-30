@@ -117,16 +117,15 @@ async def event_handler(websocket, path):
                 
                 with SessionLocal() as db:
                     query = db.query(Event)
-                    escaped_filter_value = []
-                    for value in filter_value:
-                        if isinstance(value, uuid.UUID):
-                            escaped_filter_value.append(psycopg2.extras.register_uuid(value))
-                        else:
-                            escaped_filter_value.append(value)
-
-                        query = query.filter(Event.pubkey.in_(escaped_filter_value))
+                    
 
                     for filter_name, filter_value in filters.items():
+                        escaped_filter_value = []
+                        for value in filter_value:
+                            if isinstance(value, uuid.UUID):
+                                escaped_filter_value.append(psycopg2.extras.register_uuid(value))
+                            else:
+                                escaped_filter_value.append(value)
                         if filter_name == "ids":
                             escaped_filter_value = [db.bind.engine.raw_connection().escape(value) for value in filter_value]
                             query = query.filter(Event.event_ID.in_(escaped_filter_value))
