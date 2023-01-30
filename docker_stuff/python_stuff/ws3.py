@@ -111,29 +111,17 @@ async def event_handler(websocket, path):
             elif message[0] == "REQ":
                 subscription_id = message[1]
                 filters = message[2]
-                kinds = filters.get("kinds")
-                tags = filters.get("tags")
-                
-                
+ 
                 with SessionLocal() as db:
                     query = db.query(Event)
-                    
-
                     for filter_name, filter_value in filters.items():
-                        escaped_filter_value = []
-                        for value in filter_value:
-                            if isinstance(value, uuid.UUID):
-                                escaped_filter_value.append(psycopg2.extras.register_uuid(value))
-                            else:
-                                escaped_filter_value.append(value)
                         if filter_name == "ids":
-                            escaped_filter_value = [db.bind.engine.raw_connection().escape(value) for value in filter_value]
-                            query = query.filter(Event.event_ID.in_(escaped_filter_value))
+                            ids = bytes.fromhex(filter_value)
+                            query = query.filter(Event.event_ID.in_(ids))
                         elif filter_name == "kinds":
                             query = query.filter(Event.tags.op("@>")(filter_value))
                         elif filter_name == "authors":
-                            escaped_filter_value = [db.bind.engine.raw_connection().escape(value) for value in filter_value]
-                            query = query.filter(Event.pubkey.in_(escaped_filter_value))
+                            query = query.filter(Event.pubkey.in_(filter_value))
                         elif filter_name == "since":
                             query = query.filter(Event.created_at >= filter_value)
                         elif filter_name == "until":
@@ -144,7 +132,12 @@ async def event_handler(websocket, path):
                             query = query.filter(Event.tags.op("@>")(filter_value))
                         elif filter_name == "limit":
                             limit_value = int(filter_value)
-                            #query = query.limit(limit_value)
+
+                        #authors = [bytes.fromhex(author) for author in filters.get("authors", [])]
+                        #query = query.filter(Event.author.in_(authors))
+
+                            
+
 
                     
 
