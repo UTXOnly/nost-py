@@ -38,7 +38,7 @@ class Event(Base):
     sig = Column(BYTEA)
     
 
-    def __init__(self, pid:UUID, event_ID:BYTEA, pubkey:BYTEA, kind:List(Integer), created_at:Integer, tags:JSONB, content:String, sig:BYTEA):
+    def __init__(self, pid:UUID, event_ID:BYTEA, pubkey:BYTEA, kind:List[Integer], created_at:Integer, tags:JSONB, content:String, sig:BYTEA):
         self.pid = pid
         self.event_ID = event_ID
         self.pubkey = pubkey
