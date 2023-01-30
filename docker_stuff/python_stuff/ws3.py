@@ -118,11 +118,13 @@ async def event_handler(websocket, path):
                     query = db.query(Event)
                     for filter_name, filter_value in filters.items():
                         if filter_name == "ids":
-                            query = query.filter(Event.event_ID.in_(filter_value))
+                            escaped_filter_value = [db.bind.engine.raw_connection().escape(value) for value in filter_value]
+                            query = query.filter(Event.event_ID.in_(escaped_filter_value))
                         elif filter_name == "kinds":
                             query = query.filter(Event.tags.op("@>")(filter_value))
                         elif filter_name == "authors":
-                            query = query.filter(Event.pubkey.in_(filter_value))
+                            escaped_filter_value = [db.bind.engine.raw_connection().escape(value) for value in filter_value]
+                            query = query.filter(Event.pubkey.in_(escaped_filter_value))
                         elif filter_name == "since":
                             query = query.filter(Event.created_at >= filter_value)
                         elif filter_name == "until":
@@ -134,6 +136,7 @@ async def event_handler(websocket, path):
                         elif filter_name == "limit":
                             limit_value = int(filter_value)
                             #query = query.limit(limit_value)
+
                     
 
                     try:
