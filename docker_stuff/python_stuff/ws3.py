@@ -6,13 +6,14 @@ import hmac
 import hashlib
 from time import time
 #from ddtrace import tracer
-from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast, Text 
+from sqlalchemy import create_engine, Column, String, Integer, JSON, ARRAY, text, cast, Text
 from sqlalchemy.exc import IntegrityError 
 from sqlalchemy.orm import sessionmaker, Query, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import array, JSONB
+from sqlalchemy.dialects.postgresql import array, JSONB, UUID, BYTEA
 from psycopg2.extras import Json
 import logging
+import uuid
 from typing import List
 
 
@@ -27,17 +28,18 @@ Base = declarative_base()
 class Event(Base):
     __tablename__ = "event_table"
 
-    id = Column(String, primary_key=True)
-    pubkey = Column(String)
-    kind = Column(JSONB)
+    Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False, primary_key=True) #pid = Column(UUID, primary_key=True)
+    event_ID = Column(BYTEA)
+    pubkey = Column(BYTEA)
+    kind = Column(Integer)
     created_at = Column(Integer)
     tags = Column(JSONB)
     content = Column(String)
-    sig = Column(String)
+    sig = Column(BYTEA)
     
 
-    def __init__(self, id, pubkey, kind, created_at, tags:str, content, sig):
-        self.id = id
+    def __init__(self, id, event_ID, pubkey, kind, created_at, tags:str, content, sig):
+        self.id = event_ID
         self.pubkey = pubkey
         self.kind = kind
         self.created_at = created_at
@@ -50,6 +52,7 @@ class Event(Base):
     def to_dict(event):
         return {
             "id": event.id,
+            "event_ID": event.event_ID,
             "pubkey": event.pubkey,
             "kind": event.kind,
             "created_at": event.created_at,
