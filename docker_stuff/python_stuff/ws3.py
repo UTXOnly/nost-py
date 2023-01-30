@@ -116,8 +116,8 @@ async def event_handler(websocket, path):
                     query = db.query(Event)
                     for filter_name, filter_value in filters.items():
                         if filter_name == "ids":
-                            ids = bytes.fromhex(filter_value)
-                            query = query.filter(Event.event_ID.in_(ids))
+                            ids = [bytes.fromhex(id) for id in filters.get("ids", [])]
+                            query.filter(Event.event_ID.in_(ids))
                         elif filter_name == "kinds":
                             query = query.filter(Event.tags.op("@>")(filter_value))
                         elif filter_name == "authors":
