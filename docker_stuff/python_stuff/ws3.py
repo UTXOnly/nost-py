@@ -28,7 +28,7 @@ Base = declarative_base()
 class Event(Base):
     __tablename__ = "event_table"
 
-    Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False, primary_key=True) #pid = Column(UUID, primary_key=True)
+    pid = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False, primary_key=True) #pid = Column(UUID, primary_key=True)
     event_ID = Column(BYTEA)
     pubkey = Column(BYTEA)
     kind = Column(Integer)
@@ -38,8 +38,9 @@ class Event(Base):
     sig = Column(BYTEA)
     
 
-    def __init__(self, id, event_ID, pubkey, kind, created_at, tags:str, content, sig):
-        self.id = event_ID
+    def __init__(self, pid:UUID, event_ID:BYTEA, pubkey:BYTEA, kind:List(Integer), created_at:Integer, tags:JSONB, content:String, sig:BYTEA):
+        self.pid = pid
+        self.event_ID = event_ID
         self.pubkey = pubkey
         self.kind = kind
         self.created_at = created_at
@@ -51,7 +52,7 @@ class Event(Base):
     @staticmethod
     def to_dict(event):
         return {
-            "id": event.id,
+            "pid": event.pid,
             "event_ID": event.event_ID,
             "pubkey": event.pubkey,
             "kind": event.kind,
