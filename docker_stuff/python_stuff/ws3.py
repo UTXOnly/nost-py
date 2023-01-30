@@ -31,14 +31,14 @@ class Event(Base):
     pid = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False, primary_key=True) #pid = Column(UUID, primary_key=True)
     event_ID = Column(BYTEA)
     pubkey = Column(BYTEA)
-    kind = Column(Integer)
+    kind = Column(ARRAY(Integer))
     created_at = Column(Integer)
     tags = Column(JSONB)
     content = Column(String)
     sig = Column(BYTEA)
     
 
-    def __init__(self, pid:UUID, event_ID:BYTEA, pubkey:BYTEA, kind:List[Integer], created_at:Integer, tags:JSONB, content:String, sig:BYTEA):
+    def __init__(self, pid:UUID, event_ID:BYTEA, pubkey:BYTEA, kind:List, created_at:Integer, tags:JSONB, content:String, sig:BYTEA):
         self.pid = pid
         self.event_ID = event_ID
         self.pubkey = pubkey
