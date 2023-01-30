@@ -121,7 +121,9 @@ async def event_handler(websocket, path):
                         elif filter_name == "kinds":
                             query = query.filter(Event.tags.op("@>")(filter_value))
                         elif filter_name == "authors":
-                            query = query.filter(Event.pubkey.in_(filter_value))
+                            authors = [bytes.fromhex(author) for author in filters.get("authors", [])]
+                            query = query.filter(Event.pubkey.in_(authors))
+                            #query = query.filter(Event.pubkey.in_(filter_value))
                         elif filter_name == "since":
                             query = query.filter(Event.created_at >= filter_value)
                         elif filter_name == "until":
