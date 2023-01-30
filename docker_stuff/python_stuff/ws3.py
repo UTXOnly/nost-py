@@ -87,7 +87,7 @@ async def event_handler(websocket, path):
             message = json.loads(message)
             if message[0] == "EVENT":
                 event = message[1]
-                id = event.get("id")
+                event_ID = event.get("id")
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
                 kind = event.get("kind")
@@ -95,16 +95,16 @@ async def event_handler(websocket, path):
                 content = event.get("content")
                 sig = event.get("sig")
 
-                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
-                logging.debug("Event object created with ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", id, pubkey, kind, created_at, tags, content, sig)
+                new_event = Event(event_ID=event_ID, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
+                logging.debug("Event object created with event_ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", event_ID, pubkey, kind, created_at, tags, content, sig)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
                         db.add(new_event)
                         db.commit()
-                        query = db.query(Event).filter_by(id=id)
+                        query = db.query(Event).filter_by(event_ID=event_ID)
                         entered = query.first()
-                        logging.debug("Results of querying this entry from db: ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", entered.id, entered.pubkey, entered.kind, entered.created_at, entered.tags, entered.content, entered.sig)
+                        logging.debug("Results of querying this entry from db: event_ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", entered.event_ID, entered.pubkey, entered.kind, entered.created_at, entered.tags, entered.content, entered.sig)
     
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
