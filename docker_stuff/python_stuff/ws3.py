@@ -111,17 +111,17 @@ async def event_handler(websocket, path):
             elif message[0] == "REQ":
                 subscription_id = message[1]
                 filters = message[2]
- 
+ #hex_representation = bytes(string, 'utf-8').hex()
                 with SessionLocal() as db:
                     query = db.query(Event)
                     for filter_name, filter_value in filters.items():
                         if filter_name == "ids":
-                            ids = [bytes.fromhex(id) for id in filters.get("ids", [])]
+                            ids = [bytes(id, 'utf-8').hex for id in filters.get("ids", [])]
                             query.filter(Event.event_ID.in_(ids))
                         elif filter_name == "kinds":
                             query = query.filter(Event.tags.op("@>")(filter_value))
                         elif filter_name == "authors":
-                            authors = [bytes.fromhex(author) for author in filters.get("authors", [])]
+                            authors = [bytes(author, 'utf-8').hex() for author in filters.get("authors", [])]
                             query = query.filter(Event.pubkey.in_(authors))
                             #query = query.filter(Event.pubkey.in_(filter_value))
                         elif filter_name == "since":
