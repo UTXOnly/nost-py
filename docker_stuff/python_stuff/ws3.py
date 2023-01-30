@@ -11,9 +11,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, Query, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import array, JSONB, UUID, BYTEA
-from psycopg2.extras import Json
-import logging
+from psycopg2.extras import Json, register_uuid
+import psycopg2 
 import uuid
+import logging
 from typing import List
 
 
@@ -116,6 +117,15 @@ async def event_handler(websocket, path):
                 
                 with SessionLocal() as db:
                     query = db.query(Event)
+                    escaped_filter_value = []
+                    for value in filter_value:
+                        if isinstance(value, uuid.UUID):
+                            escaped_filter_value.append(psycopg2.extras.register_uuid(value))
+                        else:
+                            escaped_filter_value.append(value)
+
+                        query = query.filter(Event.pubkey.in_(escaped_filter_value))
+
                     for filter_name, filter_value in filters.items():
                         if filter_name == "ids":
                             escaped_filter_value = [db.bind.engine.raw_connection().escape(value) for value in filter_value]
