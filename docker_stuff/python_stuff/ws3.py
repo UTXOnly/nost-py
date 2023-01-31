@@ -102,9 +102,9 @@ async def event_handler(websocket, path):
                         event_dict = Event.to_dict(new_event)
                         db.add(new_event)
                         db.commit()
-                        query = db.query(Event).filter_by(event_ID=event_ID)
-                        entered = query.first()
-                        logging.debug("Results of querying this entry from db: event_ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", entered.event_ID, entered.pubkey, entered.kind, entered.created_at, entered.tags, entered.content, entered.sig)
+                        #query = db.query(Event).filter_by(event_ID=event_ID)
+                        #entered = query.first()
+                        #logging.debug("Results of querying this entry from db: event_ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", entered.event_ID, entered.pubkey, entered.kind, entered.created_at, entered.tags, entered.content, entered.sig)
     
                     except Exception as e:
                         logging.error("An error occurred while inserting event into database: %s", e)
