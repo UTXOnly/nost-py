@@ -90,7 +90,7 @@ async def event_handler(websocket, path):
                 event_ID = event.get("id").encode('utf-8')
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
-                kind = event.get("kind")
+                kind = [event.get("kind")]
                 tags = event.get("tags")
                 content = event.get("content")
                 sig = event.get("sig")
