@@ -87,7 +87,7 @@ async def event_handler(websocket, path):
             message = json.loads(message)
             if message[0] == "EVENT":
                 event = message[1]
-                event_ID = event.get("id")
+                event_ID = event.get("id").encode('utf-8')
                 pubkey = event.get("pubkey")
                 created_at = event.get("created_at")
                 kind = event.get("kind")
@@ -95,7 +95,7 @@ async def event_handler(websocket, path):
                 content = event.get("content")
                 sig = event.get("sig")
 
-                new_event = Event(event_ID=event_ID, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
+                new_event = Event(pid=uuid.uuid4, event_ID=event_ID, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
                 logging.debug("Event object created with event_ID: %s, pubkey: %s, kind: %s, created_at: %s, tags: %s, content: %s, sig: %s", event_ID, pubkey, kind, created_at, tags, content, sig)
                 with SessionLocal() as db:
                     try:
