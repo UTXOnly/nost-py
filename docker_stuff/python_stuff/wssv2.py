@@ -12,8 +12,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import logging
 
-logging.basicConfig(filename='/errors/error.log', level=logging.DEBUG)
-logging.error('An error occurred')
+
+logging.basicConfig(level=logging.DEBUG)
 
 # Database setup
 DATABASE_URL = os.environ.get("DATABASE_URL")
@@ -55,48 +55,53 @@ Base.metadata.create_all(bind=engine)
 
 
 connected_websockets = set()
-
 async def event_handler(websocket, path):
     connected_websockets.add(websocket)
     while True:
         try:
             message = await websocket.recv()
             logging.debug(f"Received message: {message}")
-            # Process message here
             message = json.loads(message)
-            event = message.get("EVENT")
-            #response = "ACK"
-            #await websocket.send(response)
-            #logging.debug(f"Sent response: {response}")
-            if event:
+            if message["type"] == "REQ":
+                subscription_id = message["subscription_id"]
+                filters = message["filters"]
+                with SessionLocal() as db:
+                    events = db.query(Event).filter(Event.id.in_(filters["ids"]), Event.pubkey.in_(filters["authors"]), Event.kind.in_(filters["kinds"]),Event.created_at>= filters["since"],Event.created_at<= filters["until"], Event.subscription_id == subscription_id).all()
+                event_json = json.dumps({"events": events})
+                await websocket.send(event_json)
+            
+            elif message["type"] == "EVENT":
+                event = message["event"]
                 pubkey = event.get("pubkey")
                 kind = event.get("kind")
                 created_at = event.get("created_at")
                 tags = event.get("tags")
                 content = event.get("content")
                 id = event.get("id")
-                subscription_id = event.get("subscription_id")
                 sig = event.get("sig")
+                subscription_id = message["subscription_id"]
                 event_data = json.dumps([pubkey, created_at, kind, tags, content], sort_keys=True)
                 computed_id = hashlib.sha256(event_data.encode()).hexdigest()
-                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig)
+                new_event = Event(id=id, pubkey=pubkey, kind=kind, created_at=created_at, tags=tags, content=content, sig=sig, subscription_id = subscription_id)
                 with SessionLocal() as db:
                     try:
                         event_dict = Event.to_dict(new_event)
-                        db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig)", event_dict)
+                        db.execute("INSERT INTO event (id, pubkey, kind, created_at, tags, content, sig, subscription_id) VALUES (:id, :pubkey, :kind, :created_at, :tags, :content, :sig, :subscription_id)", event_dict)
                         db.commit()
                         logging.debug(f"Event submitted to database: {event_dict}")
                         await websocket.send(json.dumps({"message": "Event received and processed"}))
                     except IntegrityError as e:
                         db.rollback()
-                        # log the error or send an error message back to the client
                         logging.error(e)
                         await websocket.send(json.dumps({"error": e}))
                         await websocket.close()
-                break
+               
         except Exception as e:
             logging.error(e)
             break
+
+
+
 
 
 if __name__ == "__main__":
