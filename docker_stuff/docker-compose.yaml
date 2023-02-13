@@ -1,4 +1,4 @@
-version: '3.8'
+version: '2.1'
 
 services:
   relay:
@@ -12,10 +12,10 @@ services:
       - DD_AGENT_HOST="nostpyrelay"
       - DB_HOST=postgres
       - DB_PORT=5432
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - POSTGRES_DB=nost-py
+      - POSTGRES_USER=nost-py
+      - POSTGRES_PASSWORD=nost-py
+      - DATABASE_URL=postgresql://nost-py:nost-py@postgres:5432/$nost-py
       - SQLALCHEMY_SILENCE_UBER_WARNING=1
     volumes:
       - ./errors:/errors
@@ -30,15 +30,14 @@ services:
   postgres:
     image: postgres:latest
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      #- POSTGRES_INITDB_ARGS=--extension=jsonb_ops
+      - POSTGRES_DB=nost-py
+      - POSTGRES_USER=nost-py
+      - POSTGRES_PASSWORD=nost-py
     ports:
       - 5432:5432
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nostr"] # database username here - nostr, should be changed if other user
+      test: ["CMD-SHELL", "pg_isready -U nost-py"] # database username here - nostr, should be changed if other user
       interval: 10s
       timeout: 5s
       retries: 5
@@ -51,12 +50,12 @@ services:
       context: .
       dockerfile: Dockerfile.nginx
       args:
-        NOSTR_DOMAIN: ${NOSTR_DOMAIN}
-        EMAIL: ${EMAIL}
+        NOSTR_DOMAIN: nostr.dojotunnel.online
+        EMAIL: bhartford419@gmail.com
     environment:
-      - NOSTR_DOMAIN=${NOSTR_DOMAIN}
-      - PROXY_PASS_IP=${PROXY_PASS_IP}
-      - PORT=${PORT}
+      - NOSTR_DOMAIN=nostr.dojotunnel.online
+      - PROXY_PASS_IP=172.20.0.2
+      - PORT=8008
     container_name: nginx-reverse-proxy
     ports:
       - 80:80
