@@ -62,7 +62,7 @@ services:
       - 443:443
     command: ash -c "envsubst < /etc/nginx/sites-available/default_holder > /etc/nginx/sites-available/default && nginx -g 'daemon off;'"
     networks:
-      default:
+      relay-network:
         ipv4_address: 172.20.0.4
 networks:
   relay-network:
