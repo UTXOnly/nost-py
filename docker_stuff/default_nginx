@@ -1,5 +1,5 @@
 server{
-    server_name ${domain_name};
+    server_name nostr.dojotunnel.online;
     location / {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host;
