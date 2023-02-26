@@ -67,6 +67,7 @@ services:
     volumes:
       - ./nginx/:/etc/nginx/conf.d/:ro
       - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
     networks:
       relay-network:
         ipv4_address: 172.20.0.4
