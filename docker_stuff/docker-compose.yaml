@@ -74,6 +74,7 @@ services:
       - ./certbot/conf/:/etc/letsencrypt/:rw
     depends_on:
       nginx:
+        condition: service_started
 networks:
   relay-network:
     ipam:
