@@ -71,6 +71,7 @@ services:
     image: certbot/certbot:latest
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 networks:
   relay-network:
     ipam:
