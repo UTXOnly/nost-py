@@ -45,41 +45,41 @@ services:
       relay-network:
         ipv4_address: 172.20.0.3
 
-  #nginx:
-  #  build: 
-  #    context: .
-  #    dockerfile: Dockerfile.nginx
-#
-  #  container_name: nginx-reverse-proxy
-  #  ports:
-  #    - 80:80
-  #    - 443:443
-  #  #command: ash -c "sleep 10 && certbot run -n --nginx --agree-tos -d nostr.dojotunnel.online  -m  bhartford419@gmail.com --redirect"
-  #  networks:
-  #    relay-network:
-  #      ipv4_address: 172.20.0.4
   nginx:
-    image: nginx:latest
+    build: 
+      context: .
+      dockerfile: Dockerfile.nginx
+
+    container_name: nginx-reverse-proxy
     ports:
       - 80:80
       - 443:443
-    restart: always
-    volumes:
-      - ./nginx/:/etc/nginx/conf.d/:ro
-      - ./certbot/www:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/nginx/ssl/:rw
+    command: ash -c "sleep 30 && certbot run -n --nginx --agree-tos -d nostr.dojotunnel.online  -m  bhartford419@gmail.com --redirect"
     networks:
       relay-network:
         ipv4_address: 172.20.0.4
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
-    networks:
-      relay-network:
-        ipv4_address: 172.20.0.5
-
+  #nginx:
+  #  image: nginx:latest
+  #  ports:
+  #    - 80:80
+  #    - 443:443
+  #  restart: always
+  #  volumes:
+  #    - ./nginx/:/etc/nginx/conf.d/:ro
+  #    - ./certbot/www:/var/www/certbot/:rw
+  #    - ./certbot/conf/:/etc/nginx/ssl/:rw
+  #  networks:
+  #    relay-network:
+  #      ipv4_address: 172.20.0.4
+  #certbot:
+  #  image: certbot/certbot:latest
+  #  volumes:
+  #    - ./certbot/www/:/var/www/certbot/:rw
+  #    - ./certbot/conf/:/etc/letsencrypt/:rw
+  #  networks:
+  #    relay-network:
+  #      ipv4_address: 172.20.0.5
+#
 networks:
   relay-network:
     ipam:
