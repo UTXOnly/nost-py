@@ -45,25 +45,32 @@ services:
       relay-network:
         ipv4_address: 172.20.0.3
 
+  #nginx:
+  #  build: 
+  #    context: .
+  #    dockerfile: Dockerfile.nginx
+#
+  #  container_name: nginx-reverse-proxy
+  #  ports:
+  #    - 80:80
+  #    - 443:443
+  #  #command: ash -c "sleep 10 && certbot run -n --nginx --agree-tos -d nostr.dojotunnel.online  -m  bhartford419@gmail.com --redirect"
+  #  networks:
+  #    relay-network:
+  #      ipv4_address: 172.20.0.4
   nginx:
-    build: 
-      context: .
-      dockerfile: Dockerfile.nginx
-      args:
-        NOSTR_DOMAIN: nostr.dojotunnel.online
-        EMAIL: bhartford419@gmail.com
-    environment:
-      - NOSTR_DOMAIN=nostr.dojotunnel.online
-      - PROXY_PASS_IP=172.20.0.2
-      - PORT=8008
-    container_name: nginx-reverse-proxy
+    image: nginx:latest
     ports:
       - 80:80
       - 443:443
-    command: ash -c "sleep 10 && certbot run -n --nginx --agree-tos -d nostr.dojotunnel.online  -m  bhartford419@gmail.com --redirect"
-    networks:
-      relay-network:
-        ipv4_address: 172.20.0.4
+    restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
 networks:
   relay-network:
     ipam:
