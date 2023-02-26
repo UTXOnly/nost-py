@@ -54,7 +54,7 @@ services:
     ports:
       - 80:80
       - 443:443
-    command: ash -c "sleep 30 && certbot run -n --nginx --agree-tos -d nostr.dojotunnel.online  -m  bhartford419@gmail.com ----dry-run --redirect"
+    command: ash -c "sleep 30 && certbot run -n --nginx --agree-tos -d nostr.dojotunnel.online  -m  bhartford419@gmail.com --dry-run --redirect"
     networks:
       relay-network:
         ipv4_address: 172.20.0.4
