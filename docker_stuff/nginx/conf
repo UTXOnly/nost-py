@@ -6,10 +6,11 @@ server {
     server_tokens off;
 
     location /.well-known/acme-challenge/ {
+        allow all;
         root /var/www/certbot;
     }
 
     location / {
-        return 301 https://example.org$request_uri;
+        return 301 nostr.dojotunnel.online$request_uri;
     }
 }
