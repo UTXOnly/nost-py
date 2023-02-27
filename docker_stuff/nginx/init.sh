@@ -10,8 +10,8 @@ fi
 # Reload nginx
 nginx -s reload
 
-lsof -i :80
-lsof -i :443
-systemctl restart nginx
+#lsof -i :80
+#lsof -i :443
+#systemctl restart nginx
 # Keep container running
 nginx -g 'daemon off;'
