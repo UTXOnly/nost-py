@@ -10,5 +10,7 @@ fi
 # Reload nginx
 nginx -s reload
 
+sleep 15
+
 # Keep container running
 nginx -g 'daemon off;'
