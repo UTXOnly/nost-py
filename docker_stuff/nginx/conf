@@ -2,7 +2,7 @@ server {
     listen 80;
     listen [::]:80;
 
-    server_name nostrtest.dojotunnel.online;
+    server_name no.dojotunnel.online;
     server_tokens off;
 
     location /.well-known/acme-challenge/ {
