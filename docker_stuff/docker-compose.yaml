@@ -54,9 +54,9 @@ services:
     ports:
       - 80:80
       - 443:443
-    command: ash -c "/etc/nginx/init.sh"
-    volumes:
-      - ./nginx/:/etc/nginx/:rw
+    command: sh -c "/etc/nginx/init.sh"
+    #volumes:
+    #  - ./nginx/:/etc/nginx/:rw
     networks:
       relay-network:
         ipv4_address: 172.20.0.4
