@@ -1,21 +1,37 @@
-server {
+#server {
+#    listen 80;
+#    listen [::]:80;
+#
+#    server_name no.dojotunnel.online;
+#    server_tokens off;
+#
+#    location /.well-known/acme-challenge/ {
+#        allow all;
+#        root /var/www/certbot;
+#    }
+#
+#    location / {
+#        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#        proxy_set_header Host $host;
+#        proxy_pass http://172.20.0.2:8008;
+#        proxy_http_version 1.1;
+#        proxy_set_header Upgrade $http_upgrade;
+#        proxy_set_header Connection "upgrade";
+#    }
+#}
+#
+server{
     listen 80;
-    listen [::]:80;
-
+    listen 443 ssl;
     server_name no.dojotunnel.online;
-    server_tokens off;
-
-    location /.well-known/acme-challenge/ {
-        allow all;
-        root /var/www/certbot;
-    }
-
+    ssl_certificate /etc/letsencrypt/live/no.dojotunnel.online/cert.pem;
+    ssl_certificate_key /etc/letsencrypt/live/no.dojotunnel.online/privkey.pem;
     location / {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host \$host;
         proxy_pass http://172.20.0.2:8008;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
     }
 }
