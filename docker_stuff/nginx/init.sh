@@ -14,4 +14,4 @@ fi
 #lsof -i :443
 #systemctl restart nginx
 # Keep container running
-nginx -g 'daemon off;'
+#nginx -g 'daemon off;'
