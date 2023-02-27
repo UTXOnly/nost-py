@@ -54,7 +54,7 @@ services:
     ports:
       - 80:80
       - 443:443
-    command: ash -c "sleep 30 && certbot run -n --nginx --agree-tos -d nostrtest.dojotunnel.online  -m  bhartford419@gmail.com --redirect && nginx -s reload && nginx -g 'daemon off;'"
+    command: ash -c "/etc/nginx/init.sh"
     networks:
       relay-network:
         ipv4_address: 172.20.0.4
