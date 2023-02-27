@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Check if certbot command was already run
 if [[ -z "${CERTBOT_RUN}" ]]; then
