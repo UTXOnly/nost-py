@@ -8,7 +8,7 @@ if [[ -z "${CERTBOT_RUN}" ]]; then
 fi
 
 # Reload nginx
-nginx -s reload
+#nginx -s reload
 
 #lsof -i :80
 #lsof -i :443
