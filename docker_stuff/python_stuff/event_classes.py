@@ -183,14 +183,14 @@ class Subscription:
             try:
                 limit = filters.get("limit", 100)
                 filters.pop("limit")
-            except:
-                logger.debug("No limit")
+            except Exception as exc:
+                logger.error(f"Exception is: {exc}")
 
             try:
                 global_search = filters.get("search", {})
                 filters.pop("search")
-            except:
-                logger.debug("No search item")
+            except Exception as exc:
+                logger.error(f"Exception is: {exc}")
 
             key_mappings = {
                 "authors": "pubkey",
@@ -198,7 +198,7 @@ class Subscription:
                 "ids": "id",
             }
 
-            if len(filters) > 0:
+            if filters:
                 for key in filters:
                     new_key = key_mappings.get(key, key)
                     if new_key != key:
